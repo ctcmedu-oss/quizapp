@@ -405,11 +405,11 @@
         <ol style="margin-top: 0; margin-bottom: 12px; padding-left: 20px;">
           <li style="margin-bottom: 6px;">每週固定公布 10 題題目，答對一題得 10 分。</li>
           <li style="margin-bottom: 6px;">提交答案後，若有錯題，可選擇「錯題重刷」；重刷答對一題得 5 分。</li>
-          <li style="margin-bottom: 6px;">刷題不限輪次，刷題次數愈多，累積積分愈高。每一輪的題目和答案順序不同，請謹慎作答。</li>
+          <li style="margin-bottom: 6px;">刷題不限次數，次數愈多，積分愈高。每一次的題目和答案順序不同，請謹慎作答。</li>
         </ol>
         <ul style="list-style-type: disc; margin: 0; padding-left: 20px; color: #7f8c8d; font-size: 14px;">
           <li style="margin-bottom: 4px;">未來將公布常錯題、重點題，供大眾練習。</li>
-          <li>9/1 起進行考前衝刺，每輪刷題將從全部題庫中隨機抽出 15 題，作為筆試前練習，不列入積分計算。</li>
+          <li>9/1 起進行考前衝刺，每次刷題將從全部題庫中隨機抽出 15 題，作為筆試前練習，不列入積分計算。</li>
         </ul>
       </div>`;
 
@@ -663,9 +663,9 @@
                  tablesHtml += "</div>";
 
                  // 繪製歷史表格
-                 tablesHtml += "<table class='history-table'><tr><th>週次</th><th>最高刷題輪次</th><th>該週總積分</th></tr>";
+                 tablesHtml += "<table class='history-table'><tr><th>週次</th><th>當週刷題次數</th><th>該週總積分</th></tr>";
                  sortedWeeks.forEach(week => {
-                   tablesHtml += "<tr><td>"+week+"</td><td>第 "+history[subj][week].maxRound+" 輪</td><td><b>"+history[subj][week].score+" 分</b></td></tr>";
+                   tablesHtml += "<tr><td>"+week+"</td><td>第 "+history[subj][week].maxRound+" 次</td><td><b>"+history[subj][week].score+" 分</b></td></tr>";
                  });
                  tablesHtml += "</table>";
                }
@@ -710,7 +710,7 @@
           let titleColor = subject === '文編' ? '#e67e22' : '#3498db';
           let quizTitleEl = document.getElementById('quiz-title');
           quizTitleEl.style.color = titleColor;
-          quizTitleEl.innerHTML = "<div class='title-main'>本週 " + subject + " 刷題任務</div><div class='title-sub'>(第 " + roundCount + " 輪)</div>";
+          quizTitleEl.innerHTML = "<div class='title-main'>本週 " + subject + " 刷題任務</div><div class='title-sub'>(第 " + roundCount + " 次)</div>";
           
           startQuiz(questions);
         } catch (error) {
@@ -975,7 +975,7 @@
           let themeClass = currentSubject === '攝影' ? 'theme-photo' : '';
           let scoreHtml = "<div class='score-board " + themeClass + "'>";
           let modeText = isRetryMode ? "錯題重刷" : "測驗";
-          scoreHtml += "<h3>["+currentSubject+"] 第 " + roundCount + " 輪 " + modeText + " 完成！</h3>";
+          scoreHtml += "<h3>["+currentSubject+"] 第 " + roundCount + " 次 " + modeText + " 完成！</h3>";
           scoreHtml += "<p style='font-size: 18px; font-weight: bold; display: flex; align-items: center; justify-content: center; margin: 10px 0;'>本次獲得分數：<span class='score-number' style='margin-left: 10px;'>" + scoreData.roundScore + " 分</span></p>";
           scoreHtml += "<hr style='border:0; border-top:1px dashed #f39c12; margin:15px 0;'>";
           scoreHtml += "<p style='font-size: 18px; font-weight: bold; display: flex; align-items: center; justify-content: center; margin: 10px 0;'>累積總分：<span class='score-number' style='margin-left: 10px;'>" + total + " 分</span></p>";
@@ -1025,7 +1025,7 @@
         let titleColor = currentSubject === '文編' ? '#e67e22' : '#3498db';
         let quizTitleEl = document.getElementById('quiz-title');
         quizTitleEl.style.color = titleColor;
-        quizTitleEl.innerHTML = "<div class='title-main'>本週 " + currentSubject + " 錯題重刷</div><div class='title-sub'>(第 " + roundCount + " 輪)</div>";
+        quizTitleEl.innerHTML = "<div class='title-main'>本週 " + currentSubject + " 錯題重刷</div><div class='title-sub'>(第 " + roundCount + " 次)</div>";
         
         startQuiz(wrongQuestionsQueue);
       }

@@ -24,7 +24,27 @@
       /* 新增：選項前綴 (包含 checkbox/radio 與 A. B. C.) */
       .opt-prefix { flex-shrink: 0; white-space: nowrap; margin-right: 6px; display: flex; align-items: flex-start; }
       .opt-prefix input { margin: 3px 6px 0 0; cursor: pointer; }
-      
+      /* 將多選題的方框 (checkbox) 改為與單選題 (radio) 一樣的圓形外觀 */
+      .opt-prefix input[type="checkbox"] {
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        appearance: none;
+        width: 15px;
+        height: 15px;
+        border: 1px solid #888;
+        border-radius: 50%; /* 這一行是將方塊變圓形的關鍵 */
+        background-color: #fff;
+        margin: 4px 6px 0 0;
+        cursor: pointer;
+        display: inline-block;
+      }
+
+      /* 多選題勾選時的狀態：模擬單選題中間的圓點 */
+      .opt-prefix input[type="checkbox"]:checked {
+        border-color: #3498db; /* 圓圈邊框顏色 (系統藍色) */
+        background-color: #3498db; /* 圓點顏色 (系統藍色) */
+        box-shadow: inset 0 0 0 3px #fff; /* 用內陰影技巧做出中間白色的同心圓效果 */
+      }
       /* 修改：選項文字 (強制設為 block 區塊，解決部分瀏覽器縮排失效的問題) */
       .opt-text { display: block; flex-grow: 1; word-break: break-word; }
       

@@ -769,7 +769,7 @@
             badgeClass = 'badge-single';
           }
           
-          html += "<h4><span class='q-title-prefix'>" + questionNumber + ". </span><span class='q-title-text'><span class='q-type-badge " + badgeClass + "'>" + formatStr + "</span>" + q.text + "</span></h4>";
+          html += "<h4><span class='q-title-prefix'>" + questionNumber + ". <span class='q-type-badge " + badgeClass + "'>" + formatStr + "</span></span><span class='q-title-text'>" + q.text + "</span></h4>";
           
           // 修改：將 'E' 加入有效的選項 key 陣列中，並加入 optional chaining (?. 及安全檢查) 防呆，避免後端傳來異常資料導致當機
           let validKeys = ['A', 'B', 'C', 'D', 'E'].filter(key => q.options && q.options[key] && String(q.options[key]).trim() !== "");
@@ -905,7 +905,7 @@
           let correctAnsText = correctAnsObjArr.map(obj => obj.text).join("、");
 
           html += "<div class='q-block'>";
-          html += "<p style='display:flex; align-items:flex-start; margin-bottom: 8px;'><span class='q-title-prefix'><b>" + questionNumber + ". </b></span><span class='q-title-text' style='font-weight:bold;'><span class='q-type-badge " + badgeClass + "'>" + formatStr + "</span>" + q.text + "</span></p>";
+          html += "<p style='display:flex; align-items:flex-start; margin-bottom: 8px;'><span class='q-title-prefix'><b>" + questionNumber + ". </b><span class='q-type-badge " + badgeClass + "'>" + formatStr + "</span></span><span class='q-title-text' style='font-weight:bold;'>" + q.text + "</span></p>";
           
           // 新增：重現作答畫面與選項，並根據對錯上色
           let inputType = isMulti ? 'checkbox' : 'radio';

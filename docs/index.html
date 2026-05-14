@@ -933,6 +933,7 @@
                  
                 // 修改：顯示對應的 displayLabel (A, B, C, D) 加入 div 排版，確保完美縮排
 html += "<label style='" + labelStyle + "'><div class='opt-prefix'><input type='" + inputType + "' disabled " + checkedAttr + "> " + displayLabel + ". </div><div class='opt-text'>" + q.options[key] + "</div></label>";
+          }); 
 
           let openTag = isCorrect ? "" : "open"; 
           let summaryText = "點此查看重點解析";

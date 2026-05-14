@@ -922,7 +922,8 @@
           
           // 依照顯示的字母標籤進行排序
           correctAnsObjArr.sort((a, b) => a.label.localeCompare(b.label));
-          let correctAnsText = correctAnsObjArr.map(obj => obj.text).join("、");
+          // 修改：只擷取 label (A, B, C)，不擷取完整 text 文字
+			let correctAnsText = correctAnsObjArr.map(obj => obj.label).join("、");
 
           html += "<div class='q-block'>";
           html += "<p style='display:flex; align-items:flex-start; margin-bottom: 8px;'><span class='q-title-prefix'><b>" + questionNumber + ". </b><span class='q-type-badge " + badgeClass + "'>" + formatStr + "</span></span><span class='q-title-text' style='font-weight:bold;'>" + q.text + "</span></p>";
@@ -934,26 +935,29 @@
           // 修改：確保結果畫面的選項順序與作答時的隨機順序完全一致 (加入 'E' 及防呆機制)
           let keysToRender = q.shuffledKeys || ['A', 'B', 'C', 'D', 'E'].filter(k => q.options && q.options[k] && String(q.options[k]).trim() !== "");
           
-          keysToRender.forEach(function(key, idx) {
+         keysToRender.forEach(function(key, idx) {
                  let displayLabel = displayLetters[idx];
                  let isSelected = userSelectedArr.includes(key);
                  let checkedAttr = isSelected ? "checked" : "";
                  
+                 // 新增：判斷這一個選項本身是不是在正確答案清單中
+                 let isOptionCorrect = dbAnswerStr.split(',').includes(key);
+                 
                  // 判斷是否為使用者選取的選項，並給予對應顏色與色塊
                  let labelStyle = "display: flex; align-items: flex-start; padding: 8px 0; cursor: default;";
                  if (isSelected) {
-                     if (isCorrect) {
-                         // 答對時，一樣使用淺灰色色塊，並保留綠色粗體
+                     if (isOptionCorrect) {
+                         // 選項答對時：淺灰背景、綠色粗體
                          labelStyle += " background-color: #f1f2f6; padding: 8px 12px; margin: 2px -12px; border-radius: 6px; color: #27ae60; font-weight: bold;";
                      } else {
-                         // 答錯時改用淺灰色色塊，不使用紅字
-                         labelStyle += " background-color: #f1f2f6; padding: 8px 12px; margin: 2px -12px; border-radius: 6px; color: #333;";
+                         // 選項答錯時：淺灰背景、紅色粗體
+                         labelStyle += " background-color: #f1f2f6; padding: 8px 12px; margin: 2px -12px; border-radius: 6px; color: #e74c3c; font-weight: bold;";
                      }
                  }
                  
-                // 修改：顯示對應的 displayLabel (A, B, C, D) 加入 div 排版，確保完美縮排
-html += "<label style='" + labelStyle + "'><div class='opt-prefix'><input type='" + inputType + "' disabled " + checkedAttr + "> " + displayLabel + ". </div><div class='opt-text'>" + q.options[key] + "</div></label>";
-          }); 
+                // 顯示對應的 displayLabel (A, B, C, D) 加入 div 排版，確保完美縮排
+                html += "<label style='" + labelStyle + "'><div class='opt-prefix'><input type='" + inputType + "' disabled " + checkedAttr + "> " + displayLabel + ". </div><div class='opt-text'>" + q.options[key] + "</div></label>";
+          });
 
           let openTag = isCorrect ? "" : "open"; 
           let summaryText = "點此查看重點解析";

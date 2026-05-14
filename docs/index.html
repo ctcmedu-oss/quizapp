@@ -25,8 +25,8 @@
       .opt-prefix { flex-shrink: 0; white-space: nowrap; margin-right: 6px; display: flex; align-items: flex-start; }
       .opt-prefix input { margin: 3px 6px 0 0; cursor: pointer; }
       
-      /* 新增：選項文字 (自動填滿剩餘空間並允許斷行) */
-      .opt-text { flex-grow: 1; }
+      /* 修改：選項文字 (強制設為 block 區塊，解決部分瀏覽器縮排失效的問題) */
+      .opt-text { display: block; flex-grow: 1; word-break: break-word; }
       
       /* 題型標籤樣式 */
       .q-type-badge {
@@ -793,7 +793,7 @@
           const displayLetters = ['A', 'B', 'C', 'D', 'E', 'F'];
           q.shuffledKeys.forEach(function(key, idx) {
               let displayLabel = displayLetters[idx];
-              html += "<label><span class='opt-prefix'><input type='" + inputType + "' name='q_" + q.id + "' value='" + key + "' onchange='clearUnanswered(\"" + q.id + "\")'>" + displayLabel + ". </span><span class='opt-text'>" + q.options[key] + "</span></label>";
+              html += "<label><div class='opt-prefix'><input type='" + inputType + "' name='q_" + q.id + "' value='" + key + "' onchange='clearUnanswered(\"" + q.id + "\")'>" + displayLabel + ". </div><div class='opt-text'>" + q.options[key] + "</div></label>";
           });
           html += "<div class='unanswered-msg'>⚠️ 此題尚未作答，請選擇答案！</div>";
           html += "</div>";
@@ -931,15 +931,15 @@
                      }
                  }
                  
-                 // 修改：顯示對應的 displayLabel (A, B, C, D) 加入 span 排版
-                 html += "<label style='" + labelStyle + "'><span class='opt-prefix'><input type='" + inputType + "' disabled " + checkedAttr + "> " + displayLabel + ". </span><span class='opt-text'>" + q.options[key] + "</span></label>";
+                // 修改：顯示對應的 displayLabel (A, B, C, D) 加入 div 排版，確保完美縮排
+html += "<label style='" + labelStyle + "'><div class='opt-prefix'><input type='" + inputType + "' disabled " + checkedAttr + "> " + displayLabel + ". </div><div class='opt-text'>" + q.options[key] + "</div></label>";
 
           let openTag = isCorrect ? "" : "open"; 
           let summaryText = "點此查看重點解析";
           
           if (!isCorrect) {
-            // 若答錯，將正確解答提示改為與答對相同的綠色粗體
-            html += "<p style='color: #27ae60; font-weight: bold; margin-top: 10px;'>正確答案：" + correctAnsText + "</p>";
+            // 若答錯，使用 flex 確保長答案也能整齊縮排在「正確答案：」文字後方
+html += "<div style='display: flex; color: #27ae60; font-weight: bold; margin-top: 10px; line-height: 1.5;'><span style='flex-shrink: 0;'>正確答案：</span><span>" + correctAnsText + "</span></div>";
             wrongQuestionsQueue.push(q); 
           } else {
             // 新增：若答對，在下方加上「作答正確！」提示

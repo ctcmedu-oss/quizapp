@@ -693,7 +693,8 @@
                  // 繪製歷史表格
                  tablesHtml += "<table class='history-table'><tr><th>週次</th><th>當週刷題次數</th><th>該週總積分</th></tr>";
                  sortedWeeks.forEach(week => {
-                   tablesHtml += "<tr><td>"+week+"</td><td>第 "+history[subj][week].maxRound+" 次</td><td><b>"+history[subj][week].score+" 分</b></td></tr>";
+                   // 修改：將「第」字拿掉，直接顯示次數
+                   tablesHtml += "<tr><td>"+week+"</td><td>"+history[subj][week].maxRound+" 次</td><td><b>"+history[subj][week].score+" 分</b></td></tr>";
                  });
                  tablesHtml += "</table>";
                }

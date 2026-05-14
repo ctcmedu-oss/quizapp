@@ -18,7 +18,15 @@
       
       .q-block { margin-bottom:25px; border-bottom:1px solid #eee; padding-bottom:15px; }
       .q-block h4 { color: #34495e; margin-bottom: 12px; line-height: 1.4; display: flex; align-items: flex-start; }
-      .q-block label { display: block; padding: 8px 0; cursor: pointer; }
+      /* 修改：讓選項改為 Flexbox 排版 */
+      .q-block label { display: flex; align-items: flex-start; padding: 8px 0; cursor: pointer; line-height: 1.5; }
+      
+      /* 新增：選項前綴 (包含 checkbox/radio 與 A. B. C.) */
+      .opt-prefix { flex-shrink: 0; white-space: nowrap; margin-right: 6px; display: flex; align-items: flex-start; }
+      .opt-prefix input { margin: 3px 6px 0 0; cursor: pointer; }
+      
+      /* 新增：選項文字 (自動填滿剩餘空間並允許斷行) */
+      .opt-text { flex-grow: 1; }
       
       /* 題型標籤樣式 */
       .q-type-badge {
@@ -785,7 +793,7 @@
           const displayLetters = ['A', 'B', 'C', 'D', 'E', 'F'];
           q.shuffledKeys.forEach(function(key, idx) {
               let displayLabel = displayLetters[idx];
-              html += "<label><input type='" + inputType + "' name='q_" + q.id + "' value='" + key + "' onchange='clearUnanswered(\"" + q.id + "\")'> " + displayLabel + ". " + q.options[key] + "</label>";
+              html += "<label><span class='opt-prefix'><input type='" + inputType + "' name='q_" + q.id + "' value='" + key + "' onchange='clearUnanswered(\"" + q.id + "\")'>" + displayLabel + ". </span><span class='opt-text'>" + q.options[key] + "</span></label>";
           });
           html += "<div class='unanswered-msg'>⚠️ 此題尚未作答，請選擇答案！</div>";
           html += "</div>";
@@ -912,7 +920,7 @@
                  let checkedAttr = isSelected ? "checked" : "";
                  
                  // 判斷是否為使用者選取的選項，並給予對應顏色與色塊
-                 let labelStyle = "display: block; padding: 8px 0; cursor: default;";
+                 let labelStyle = "display: flex; align-items: flex-start; padding: 8px 0; cursor: default;";
                  if (isSelected) {
                      if (isCorrect) {
                          // 答對時，一樣使用淺灰色色塊，並保留綠色粗體
@@ -923,9 +931,8 @@
                      }
                  }
                  
-                 // 修改：顯示對應的 displayLabel (A, B, C, D)
-                 html += "<label style='" + labelStyle + "'><input type='" + inputType + "' disabled " + checkedAttr + "> " + displayLabel + ". " + q.options[key] + "</label>";
-          });
+                 // 修改：顯示對應的 displayLabel (A, B, C, D) 加入 span 排版
+                 html += "<label style='" + labelStyle + "'><span class='opt-prefix'><input type='" + inputType + "' disabled " + checkedAttr + "> " + displayLabel + ". </span><span class='opt-text'>" + q.options[key] + "</span></label>";
 
           let openTag = isCorrect ? "" : "open"; 
           let summaryText = "點此查看重點解析";

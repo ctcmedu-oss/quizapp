@@ -24,21 +24,38 @@
       /* 新增：選項前綴 (包含 checkbox/radio 與 A. B. C.) */
       .opt-prefix { flex-shrink: 0; white-space: nowrap; margin-right: 6px; display: flex; align-items: flex-start; }
       .opt-prefix input { margin: 3px 6px 0 0; cursor: pointer; }
-      /* 將多選題的方框 (checkbox) 改為與單選題 (radio) 一樣的圓形外觀 */
-      .opt-prefix input[type="checkbox"] {
+		
+      /* 修改：將單選 (radio) 與多選 (checkbox) 的外觀統一自定義，避免被系統強制變灰 */
+      .opt-prefix input[type="checkbox"],
+      .opt-prefix input[type="radio"] {
         -webkit-appearance: none;
         -moz-appearance: none;
         appearance: none;
         width: 15px;
         height: 15px;
         border: 1px solid #888;
-        border-radius: 50%; /* 這一行是將方塊變圓形的關鍵 */
+        border-radius: 50%; /* 兩者都維持圓形 */
         background-color: #fff;
         margin: 4px 6px 0 0;
         cursor: pointer;
         display: inline-block;
+        vertical-align: middle;
+        position: relative;
       }
 
+      /* 當被勾選時的顏色（保持系統藍色，不因 disabled 變灰） */
+      .opt-prefix input[type="checkbox"]:checked,
+      .opt-prefix input[type="radio"]:checked {
+        border-color: #3498db;
+        background-color: #3498db;
+        box-shadow: inset 0 0 0 3px #fff; /* 內白圓點效果 */
+      }
+
+      /* 強制讓 disabled 狀態下依然顯示原本定義的顏色 */
+      .opt-prefix input:disabled {
+        opacity: 1; 
+        cursor: default;
+      }
       /* 多選題勾選時的狀態：模擬單選題中間的圓點 */
       .opt-prefix input[type="checkbox"]:checked {
         border-color: #3498db; /* 圓圈邊框顏色 (系統藍色) */
@@ -961,8 +978,8 @@
               }
               // --- 修改結束 ---
                  
-                // 顯示對應的 displayLabel (A, B, C, D) 加入 div 排版，確保完美縮排
-                html += "<label style='" + labelStyle + "'><div class='opt-prefix'><input type='" + inputType + "' disabled " + checkedAttr + "> " + displayLabel + ". </div><div class='opt-text'>" + q.options[key] + "</div></label>";
+                // 請確保這行 input 標籤有包含 disabled 且正確觸發 checkedAttr
+html += "<label style='" + labelStyle + "'><div class='opt-prefix'><input type='" + inputType + "' disabled " + checkedAttr + "> " + displayLabel + ". </div><div class='opt-text'>" + q.options[key] + "</div></label>";
           });
 
           let openTag = isCorrect ? "" : "open"; 

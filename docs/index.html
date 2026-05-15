@@ -937,34 +937,39 @@
           let keysToRender = q.shuffledKeys || ['A', 'B', 'C', 'D', 'E'].filter(k => q.options && q.options[k] && String(q.options[k]).trim() !== "");
           
          keysToRender.forEach(function(key, idx) {
-                 let displayLabel = displayLetters[idx];
-                 let isSelected = userSelectedArr.includes(key);
-                 let checkedAttr = isSelected ? "checked" : "";
-                 
-                 // 新增：判斷這一個選項本身是不是在正確答案清單中
-                 let isOptionCorrect = dbAnswerStr.split(',').includes(key);
-                 
-                 // --- 修改開始：定義選項樣式 ---
-              let labelStyle = "display: flex; align-items: flex-start; padding: 8px 0; cursor: default;";
+              let displayLabel = displayLetters[idx];
+              let isSelected = userSelectedArr.includes(key);
+              let checkedAttr = isSelected ? "checked" : "";
               
+              // 判斷這一個選項本身是不是在正確答案清單中
+              let isOptionCorrect = dbAnswerStr.split(',').includes(key);
+              
+              // 1. 定義標籤樣式：正確答案綠色粗體，選錯的紅色粗體
+              let labelStyle = "display: flex; align-items: flex-start; padding: 8px 0; cursor: default;";
               if (isOptionCorrect) {
-                  // 🌟 只要是正確答案：一律呈現綠色粗體 (無論有沒有選)
                   labelStyle += " color: #27ae60; font-weight: bold;";
               } else if (isSelected && !isOptionCorrect) {
-                  // 使用者選錯的選項：呈現紅色粗體
                   labelStyle += " color: #e74c3c; font-weight: bold;";
               }
 
+              // 2. 處理背景色塊：只要有選中的就加上底色
               if (isSelected) {
-                  // 被選中的選項：加上淺灰色背景底塊以示區別
                   labelStyle += " background-color: #f1f2f6; padding: 8px 12px; margin: 2px -12px; border-radius: 6px;";
               }
-              // --- 修改結束 ---
-                 
-                // 顯示對應的 displayLabel (A, B, C, D) 加入 div 排版，確保完美縮排
-                html += "<label style='" + labelStyle + "'><div class='opt-prefix'><input type='" + inputType + "' disabled " + checkedAttr + "> " + displayLabel + ". </div><div class='opt-text'>" + q.options[key] + "</div></label>";
+              
+              // 3. 處理 Input 樣式：解決單選鈕反灰問題
+              // 我們依然保留 disabled 避免使用者在結果頁亂點，但透過 style 強制讓它不反灰
+              let inputStyle = "opacity: 1; filter: grayscale(0); -webkit-appearance: auto;";
+              
+              html += "<label style='" + labelStyle + "'>" +
+                      "<div class='opt-prefix'>" +
+                      "<input type='" + inputType + "' " +
+                      "style='" + inputStyle + "' " + 
+                      "disabled " + checkedAttr + "> " + 
+                      displayLabel + ". </div>" +
+                      "<div class='opt-text'>" + q.options[key] + "</div></label>";
           });
-
+			
           let openTag = isCorrect ? "" : "open"; 
           let summaryText = "點此查看重點解析";
           

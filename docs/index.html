@@ -809,23 +809,27 @@
           
           html += "<h4><span class='q-title-prefix'>" + questionNumber + ". <span class='q-type-badge " + badgeClass + "'>" + formatStr + "</span></span><span class='q-title-text'>" + q.text + "</span></h4>";
           
-          // 修改：將 'E' 加入有效的選項 key 陣列中，並加入 optional chaining (?. 及安全檢查) 防呆，避免後端傳來異常資料導致當機
-          let validKeys = ['A', 'B', 'C', 'D', 'E'].filter(key => q.options && q.options[key] && String(q.options[key]).trim() !== "");
-          
-          if (!isRetryMode) {
-              // 條件1: 全新一輪時，檢查是否有「以上皆是」或「以上皆非」
-              let hasAllOfTheAbove = validKeys.some(key => String(q.options[key]).includes("以上皆是") || String(q.options[key]).includes("以上皆非"));
-              if (hasAllOfTheAbove) {
-                  q.shuffledKeys = [...validKeys]; // 若包含，維持原順序不洗牌
-              } else {
-                  q.shuffledKeys = shuffleArray([...validKeys]); // 否則進行選項隨機洗牌
-              }
-          } else {
-              // 條件2: 錯題重刷時，沿用第一次作答時的選項順序 (不重新洗牌)
-              if (!q.shuffledKeys) {
-                  q.shuffledKeys = [...validKeys]; // 防呆處理
-              }
-          }
+         // 修改：將 'E' 加入有效的選項 key 陣列中
+  let validKeys = ['A', 'B', 'C', 'D', 'E'].filter(key => q.options && q.options[key] && String(q.options[key]).trim() !== "");
+  
+  if (!isRetryMode) {
+      // 🌟 重點修改：判斷是否需要固定順序 🌟
+      // 條件：M欄標記為"是" OR 包含"以上皆是/非"
+      let hasAllOfTheAbove = validKeys.some(key => String(q.options[key]).includes("以上皆是") || String(q.options[key]).includes("以上皆非"));
+      let forceFixed = (q.isFixed === "是" || q.isFixed === true);
+
+      if (forceFixed || hasAllOfTheAbove) {
+          q.shuffledKeys = [...validKeys]; // 不洗牌，維持 A, B, C, D, E 順序
+          console.log("此題解析含編號或特殊選項，已鎖定順序:", q.text);
+      } else {
+          q.shuffledKeys = shuffleArray([...validKeys]); // 執行隨機洗牌
+      }
+  } else {
+      // 錯題重刷時，沿用第一次作答時的選項順序
+      if (!q.shuffledKeys) {
+          q.shuffledKeys = [...validKeys];
+      }
+  }
           
           // 依據決定好的順序渲染選項，但畫面上「固定顯示 A, B, C, D」
           const displayLetters = ['A', 'B', 'C', 'D', 'E', 'F'];

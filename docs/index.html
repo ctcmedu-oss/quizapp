@@ -443,7 +443,7 @@
       // ==============================================================
       const API_URL = "https://script.google.com/macros/s/AKfycbzR0nxw4mkxT1JkA4w2nQBsRJ0qIVISkz_pu7_hws0ULiksWvyiB_ivIls2dIRQmQm5/exec"; 
 
-      // 🌟 新增：將「刷題積分說明」抽取為共用區塊，方便在多個頁面同時顯示並統一修改
+      // 🌟 將「刷題積分說明」抽取為共用區塊
       const SCORING_RULES_HTML = `
       <div style="background-color: #f8f9fa; border-left: 5px solid #3498db; padding: 15px 20px; margin: 0 0 25px 0; border-radius: 4px; text-align: left; font-size: 15px; line-height: 1.6; color: #2c3e50; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
         <div style="font-weight: bold; margin-bottom: 8px; color: #2980b9; font-size: 16px;">💡 刷題積分說明：</div>
@@ -477,7 +477,83 @@
         });
       });
 
-      // 核心 API 呼叫工具 (修正 JSON 錯誤與 CORS 問題)
+      // 🌟 新增：記憶狀態機制 (SessionStorage) 🌟
+      function updateAppState(section) {
+        let state = {
+          section: section,
+          subject: currentSubject,
+          roundCount: roundCount,
+          isRetryMode: isRetryMode,
+          testQuestions: currentTestQuestions,
+          wrongQuestionsQueue: wrongQuestionsQueue,
+          inquiryHtml: section === 'inquiry-section' ? document.getElementById('inquiry-content').innerHTML : "",
+          resultHtml: section === 'result-section' ? document.getElementById('result-container').innerHTML : "",
+          actionBtnsHtml: section === 'result-section' ? document.getElementById('action-buttons').innerHTML : ""
+        };
+        sessionStorage.setItem('appState', JSON.stringify(state));
+      }
+
+      // 🌟 新增：記憶當下測驗作答的答案 🌟
+      function saveQuizAnswers() {
+        if (document.getElementById('quiz-section').style.display === 'block') {
+          let answers = {};
+          currentTestQuestions.forEach(q => {
+            let inputs = document.querySelectorAll("input[name='q_" + q.id + "']:checked");
+            let selected = [];
+            inputs.forEach(input => selected.push(input.value));
+            if (selected.length > 0) {
+              answers[q.id] = selected;
+            }
+          });
+          let stateStr = sessionStorage.getItem('appState');
+          if (stateStr) {
+            let state = JSON.parse(stateStr);
+            state.quizAnswers = answers;
+            sessionStorage.setItem('appState', JSON.stringify(state));
+          }
+        }
+      }
+
+      // 🌟 新增：還原重新整理前的畫面與狀態 🌟
+      function restoreAppState(state) {
+        currentSubject = state.subject || "";
+        roundCount = state.roundCount || 1;
+        isRetryMode = state.isRetryMode || false;
+        currentTestQuestions = state.testQuestions || [];
+        wrongQuestionsQueue = state.wrongQuestionsQueue || [];
+
+        document.querySelectorAll('.container').forEach(c => c.style.display = 'none');
+        
+        if (currentVolunteer && currentVolunteer.volunteerName) {
+            let firstName = extractFirstName(currentVolunteer.volunteerName);
+            document.getElementById('welcome-msg').innerText = firstName + " 您好！";
+        }
+
+        let section = state.section || 'select-section';
+        
+        if (section === 'login-section') {
+            document.getElementById('login-section').style.display = 'block';
+        } else if (section === 'select-section') {
+            renderSelectSection();
+        } else if (section === 'inquiry-section') {
+            document.getElementById('inquiry-section').style.display = 'block';
+            document.getElementById('inquiry-content').innerHTML = state.inquiryHtml || "";
+        } else if (section === 'quiz-section') {
+            document.getElementById('quiz-section').style.display = 'block';
+            let titleColor = currentSubject === '文編' ? '#e67e22' : '#3498db';
+            let quizTitleEl = document.getElementById('quiz-title');
+            quizTitleEl.style.color = titleColor;
+            let modeText = isRetryMode ? "錯題重刷" : "刷題任務";
+            quizTitleEl.innerHTML = "<div class='title-main'>本週 " + currentSubject + " " + modeText + "</div><div class='title-sub'>(第 " + roundCount + " 次)</div>";
+            renderQuizUI(state.quizAnswers || {}); // 還原作答狀態
+        } else if (section === 'result-section') {
+            document.getElementById('result-section').style.display = 'block';
+            document.getElementById('result-container').innerHTML = state.resultHtml || "";
+            document.getElementById('action-buttons').innerHTML = state.actionBtnsHtml || "";
+        }
+      }
+
+      // 核心 API 呼叫工具
       async function callApi(action, data) {
         try {
           const response = await fetch(API_URL, {
@@ -494,9 +570,8 @@
           try {
             result = JSON.parse(text);
           } catch (e) {
-            console.error("後端回傳了非 JSON 格式的內容:", text);
             if (text.includes("<!DOCTYPE html>")) {
-               throw new Error("無法連線至資料庫：<br>請確認您的 Google Apps Script 已經包含 doPost(e) 函式，並且發布權限已設為「所有人 (Anyone)」。");
+               throw new Error("無法連線至資料庫：<br>請確認發布權限已設為「所有人 (Anyone)」。");
             }
             throw new Error("伺服器回傳格式錯誤，請檢查 API 網址或後端程式碼。");
           }
@@ -507,7 +582,6 @@
             throw new Error(result.message || "未知的 API 錯誤");
           }
         } catch (error) {
-          console.error("API 錯誤:", error);
           throw error;
         }
       }
@@ -527,26 +601,17 @@
         return name;
       }
 
-      // 🌟 修改：網頁初始化邏輯，加入狀態路由判斷
       window.onload = function() {
         try {
           let savedUser = localStorage.getItem('volunteerData');
           if (savedUser) {
             currentVolunteer = JSON.parse(savedUser);
-            
-            // 讀取上一次暫存的頁面狀態
-            let savedState = localStorage.getItem('currentUiState');
-            let savedSubject = localStorage.getItem('currentUiSubject');
-            
-            if (savedState === 'quiz' && savedSubject) {
-              // 重新載入原本選取的測驗
-              selectSubject(savedSubject);
-            } else if (savedState === 'inquiry') {
-              // 重新載入積分查詢
-              showInquiry();
+            // 🌟 初始化判斷：是否有暫存狀態，若有則還原
+            let savedState = sessionStorage.getItem('appState');
+            if (savedState) {
+                restoreAppState(JSON.parse(savedState));
             } else {
-              // 預設回到選擇題庫畫面
-              renderSelectSection();
+                renderSelectSection();
             }
           } else {
             document.getElementById('login-section').style.display = 'block';
@@ -593,9 +658,7 @@
           currentVolunteer = result;
           try {
             localStorage.setItem('volunteerData', JSON.stringify(result));
-          } catch (error) {
-            console.warn("無法儲存登入狀態，本次關閉網頁後需重新登入。");
-          }
+          } catch (error) {}
           renderSelectSection();
         } else {
           document.getElementById('login-msg').innerText = result.message;
@@ -603,13 +666,9 @@
       }
 
       function renderSelectSection() {
-        window.scrollTo(0, 0); // 確保每次切換頁面時回到最上方
+        window.scrollTo(0, 0);
         document.querySelectorAll('.container').forEach(c => c.style.display = 'none');
         document.getElementById('select-section').style.display = 'block';
-        
-        // 🌟 新增：回到主畫面時重置狀態
-        localStorage.removeItem('currentUiState');
-        localStorage.removeItem('currentUiSubject');
         
         let firstName = extractFirstName(currentVolunteer.volunteerName);
         document.getElementById('welcome-msg').innerText = firstName + " 您好！";
@@ -619,14 +678,14 @@
         if(currentVolunteer.canPhoto) btnsHtml += "<button onclick=\"selectSubject('攝影')\" style='background-color:#3498db; font-size: 22px; padding: 18px;'>初階攝影</button>";
 
         document.getElementById('subject-buttons').innerHTML = btnsHtml;
+        updateAppState('select-section'); // 🌟 記錄目前狀態
       }
 
       function logout() {
         window.scrollTo(0, 0);
         try {
           localStorage.removeItem('volunteerData');
-          localStorage.removeItem('currentUiState');
-          localStorage.removeItem('currentUiSubject');
+          sessionStorage.removeItem('appState'); // 🌟 登出時清空記憶
         } catch(error) {}
         currentVolunteer = {};
         document.getElementById('vName').value = "";
@@ -644,10 +703,6 @@
         document.getElementById('inquiry-section').style.display = 'block';
         document.getElementById('inquiry-content').innerHTML = "<div class='loading-container'><div class='spinner'></div><div class='loading-text'>讀取歷史紀錄中...</div></div>";
         
-        // 🌟 新增：記憶積分查詢畫面狀態
-        localStorage.setItem('currentUiState', 'inquiry');
-        localStorage.removeItem('currentUiSubject');
-
         try {
           const history = await callApi('getWeeklyScoreHistory', { vId: currentVolunteer.volunteerId });
           
@@ -656,31 +711,11 @@
               <h4>刷題里程徽章級別</h4>
               <div class="staircase-wrapper">
                 <div class="staircase-bars">
-                  <div class="stair-col">
-                    <div class="stair-icon">⭐</div>
-                    <div class="stair-name">新星</div>
-                    <div class="stair-bar bar-star"></div>
-                  </div>
-                  <div class="stair-col">
-                    <div class="stair-icon">🥉</div>
-                    <div class="stair-name">銅牌</div>
-                    <div class="stair-bar bar-bronze"></div>
-                  </div>
-                  <div class="stair-col">
-                    <div class="stair-icon">🥈</div>
-                    <div class="stair-name">銀牌</div>
-                    <div class="stair-bar bar-silver"></div>
-                  </div>
-                  <div class="stair-col">
-                    <div class="stair-icon">🥇</div>
-                    <div class="stair-name">金牌</div>
-                    <div class="stair-bar bar-gold"></div>
-                  </div>
-                  <div class="stair-col">
-                    <div class="stair-icon">💎</div>
-                    <div class="stair-name">鑽石</div>
-                    <div class="stair-bar bar-diamond"></div>
-                  </div>
+                  <div class="stair-col"><div class="stair-icon">⭐</div><div class="stair-name">新星</div><div class="stair-bar bar-star"></div></div>
+                  <div class="stair-col"><div class="stair-icon">🥉</div><div class="stair-name">銅牌</div><div class="stair-bar bar-bronze"></div></div>
+                  <div class="stair-col"><div class="stair-icon">🥈</div><div class="stair-name">銀牌</div><div class="stair-bar bar-silver"></div></div>
+                  <div class="stair-col"><div class="stair-icon">🥇</div><div class="stair-name">金牌</div><div class="stair-bar bar-gold"></div></div>
+                  <div class="stair-col"><div class="stair-icon">💎</div><div class="stair-name">鑽石</div><div class="stair-bar bar-diamond"></div></div>
                 </div>
                 <div class="staircase-scores">
                   <div class="stair-score">1499分<br>以下</div>
@@ -741,9 +776,10 @@
           }
 
           document.getElementById('inquiry-content').innerHTML = html + tablesHtml;
+          updateAppState('inquiry-section'); // 🌟 記錄狀態
         } catch (error) {
           document.getElementById('inquiry-content').innerHTML = "<p style='text-align:center; color:#e74c3c; line-height:1.5;'>" + error.message + "</p>";
-          console.error("渲染積分歷史錯誤:", error);
+          updateAppState('inquiry-section'); // 🌟 記錄狀態
         }
       }
 
@@ -760,10 +796,6 @@
         document.getElementById('quiz-title').innerHTML = "";
         document.getElementById('question-container').innerHTML = "<div class='loading-container'><div class='spinner'></div><div class='loading-text'>正在為您準備 "+subject+" 題庫，請稍候...</div></div>";
         
-        // 🌟 新增：記憶目前進入的測驗科目狀態
-        localStorage.setItem('currentUiState', 'quiz');
-        localStorage.setItem('currentUiSubject', subject);
-
         try {
           const dbRound = await callApi('getUserCurrentRound', { vId: currentVolunteer.volunteerId, subject: subject });
           roundCount = dbRound; 
@@ -783,11 +815,20 @@
 
       function startQuiz(questions) {
         if (isRetryMode) {
-          currentTestQuestions = [...questions]; // 錯題重刷：維持原題目順序
+          currentTestQuestions = [...questions]; 
         } else {
-          currentTestQuestions = [...questions]; // 先複製一份原始資料，後面個別處理每一題的隨機洗牌
+          currentTestQuestions = [...questions]; 
+          // 🌟 核心修正：將「打亂題目順序」移到這裡，在生成 HTML 之前執行！
+          // 這樣迴圈跑出來的時候，index 順序就會直接是完美的 1, 2, 3...
+          shuffleArray(currentTestQuestions); 
         }
         
+        renderQuizUI();
+        updateAppState('quiz-section'); // 🌟 記錄進入測驗狀態
+      }
+
+      // 獨立出「渲染測驗介面」的函式，方便還原時使用
+      function renderQuizUI(restoredAnswers = null) {
         var container = document.getElementById('question-container');
         
         if(!currentTestQuestions || currentTestQuestions.length === 0) {
@@ -807,6 +848,7 @@
               formatStr = '單選題';
           }
           
+          // 🌟 因為陣列已經提早洗牌，這裡只要直直加上 index + 1 就是完美的 1 號開始編排
           let questionNumber = index + 1; 
           let isMulti = formatStr.includes('多') || formatStr.includes('複');
           let inputType = isMulti ? 'checkbox' : 'radio';
@@ -824,19 +866,18 @@
           
           let validKeys = ['A', 'B', 'C', 'D', 'E'].filter(key => q.options && q.options[key] && String(q.options[key]).trim() !== "");
           
-          if (!isRetryMode) {
-              // 🌟 修正點 1：增強 M 欄鎖定邏輯的防呆與布林判斷 🌟
-              let hasAllOfTheAbove = validKeys.some(key => String(q.options[key]).includes("以上皆是") || String(q.options[key]).includes("以上皆非"));
-              let forceFixed = (q.isFixed === "是" || q.isFixed === true || String(q.isFixed).toLowerCase().trim() === "true");
+          // 若從未洗過選項，才進行選項洗牌
+          if (!q.shuffledKeys) {
+              if (!isRetryMode) {
+                  let hasAllOfTheAbove = validKeys.some(key => String(q.options[key]).includes("以上皆是") || String(q.options[key]).includes("以上皆非"));
+                  let forceFixed = (q.isFixed === "是" || q.isFixed === true || String(q.isFixed).toLowerCase().trim() === "true");
 
-              if (forceFixed || hasAllOfTheAbove) {
-                  q.shuffledKeys = [...validKeys]; // 不洗牌，維持 A, B, C, D, E 順序
-                  console.log("此題已成功鎖定順序:", q.text);
+                  if (forceFixed || hasAllOfTheAbove) {
+                      q.shuffledKeys = [...validKeys]; // 維持順序
+                  } else {
+                      q.shuffledKeys = shuffleArray([...validKeys]); // 隨機選項
+                  }
               } else {
-                  q.shuffledKeys = shuffleArray([...validKeys]); // 執行隨機洗牌
-              }
-          } else {
-              if (!q.shuffledKeys) {
                   q.shuffledKeys = [...validKeys];
               }
           }
@@ -844,29 +885,16 @@
           const displayLetters = ['A', 'B', 'C', 'D', 'E', 'F'];
           q.shuffledKeys.forEach(function(key, idx) {
               let displayLabel = displayLetters[idx];
-              html += "<label><div class='opt-prefix'><input type='" + inputType + "' name='q_" + q.id + "' value='" + key + "' onchange='clearUnanswered(\"" + q.id + "\")'>" + displayLabel + ". </div><div class='opt-text'>" + q.options[key] + "</div></label>";
+              // 若有上次記憶的答案，把它勾選回來
+              let isChecked = restoredAnswers && restoredAnswers[q.id] && restoredAnswers[q.id].includes(key) ? "checked" : "";
+              
+              // 🌟 點擊選項時不僅清除未作答紅框，並即時保存狀態到 sessionStorage
+              html += "<label><div class='opt-prefix'><input type='" + inputType + "' name='q_" + q.id + "' value='" + key + "' " + isChecked + " onchange='clearUnanswered(\"" + q.id + "\"); saveQuizAnswers();'>" + displayLabel + ". </div><div class='opt-text'>" + q.options[key] + "</div></label>";
           });
           html += "<div class='unanswered-msg'>⚠️ 此題尚未作答，請選擇答案！</div>";
           html += "</div>";
           container.innerHTML += html;
         });
-        
-        // 全新一輪時，將題目陣列隨機打亂，但必須「在每一題的 shuffledKeys 產生之後」才打亂題目順序
-        if (!isRetryMode) {
-          shuffleArray(currentTestQuestions);
-          // 重新整理題號標題
-          setTimeout(() => {
-            currentTestQuestions.forEach((q, idx) => {
-               let block = document.getElementById('q-block-' + q.id);
-               if(block) {
-                 let h4 = block.querySelector('h4');
-                 let formatStr = q.qFormat || '單選題';
-                 let badgeClass = formatStr.includes('多') || formatStr.includes('複') ? 'badge-multi' : (formatStr.includes('是非') ? 'badge-boolean' : 'badge-single');
-                 h4.innerHTML = "<span class='q-title-prefix'>" + (idx + 1) + ". <span class='q-type-badge " + badgeClass + "'>" + formatStr + "</span></span><span class='q-title-text'>" + q.text + "</span>";
-               }
-            });
-          }, 50);
-        }
 
         document.getElementById('submit-btn').style.display = 'block';
       }
@@ -917,10 +945,6 @@
         let html = "";
         wrongQuestionsQueue = []; 
         document.getElementById('submit-btn').style.display = 'none'; 
-
-        // 🌟 新增：送出答案時，代表作答結束，可以清除暫存測驗狀態，避免看完成績重整頁面又被拉進空測驗
-        localStorage.removeItem('currentUiState');
-        localStorage.removeItem('currentUiSubject');
 
         currentTestQuestions.forEach(function(q, index) {
           let ansValue = "";
@@ -981,29 +1005,28 @@
           let inputType = isMulti ? 'checkbox' : 'radio';
           let userSelectedArr = ansValue.split(',');
           
-          // 🌟 修正點 2：在結果面板中，強制沿用作答時的隨機順序，不允許再次被洗牌 🌟
           let validKeys = ['A', 'B', 'C', 'D', 'E'].filter(k => q.options && q.options[k] && String(q.options[k]).trim() !== "");
           let keysToRender = q.shuffledKeys || validKeys;
           
           keysToRender.forEach(function(key, idx) {
-                  let displayLabel = displayLetters[idx];
-                  let isSelected = userSelectedArr.includes(key);
-                  let checkedAttr = isSelected ? "checked" : "";
-                  let isOptionCorrect = dbAnswerStr.split(',').includes(key);
-                  
-                  let labelStyle = "display: flex; align-items: flex-start; padding: 8px 0; cursor: default;";
-                  
-                  if (isOptionCorrect) {
-                      labelStyle += " color: #27ae60; font-weight: bold;";
-                  } else if (isSelected && !isOptionCorrect) {
-                      labelStyle += " color: #e74c3c; font-weight: bold;";
-                  }
+                 let displayLabel = displayLetters[idx];
+                 let isSelected = userSelectedArr.includes(key);
+                 let checkedAttr = isSelected ? "checked" : "";
+                 let isOptionCorrect = dbAnswerStr.split(',').includes(key);
+                 
+                 let labelStyle = "display: flex; align-items: flex-start; padding: 8px 0; cursor: default;";
+                 
+                 if (isOptionCorrect) {
+                     labelStyle += " color: #27ae60; font-weight: bold;";
+                 } else if (isSelected && !isOptionCorrect) {
+                     labelStyle += " color: #e74c3c; font-weight: bold;";
+                 }
 
-                  if (isSelected) {
-                      labelStyle += " background-color: #f1f2f6; padding: 8px 12px; margin: 2px -12px; border-radius: 6px;";
-                  }
+                 if (isSelected) {
+                     labelStyle += " background-color: #f1f2f6; padding: 8px 12px; margin: 2px -12px; border-radius: 6px;";
+                 }
                      
-                  html += "<label style='" + labelStyle + "'><div class='opt-prefix'><input type='" + inputType + "' disabled " + checkedAttr + "> " + displayLabel + ". </div><div class='opt-text'>" + q.options[key] + "</div></label>";
+                 html += "<label style='" + labelStyle + "'><div class='opt-prefix'><input type='" + inputType + "' disabled " + checkedAttr + "> " + displayLabel + ". </div><div class='opt-text'>" + q.options[key] + "</div></label>";
           });
 
           let openTag = isCorrect ? "" : "open"; 
@@ -1076,9 +1099,12 @@
           actionBtns += "<button onclick='showInquiry()' style='background-color:#3498db;'>📊 積分查詢</button>";
           document.getElementById('action-buttons').innerHTML = actionBtns;
 
+          updateAppState('result-section'); // 🌟 記錄狀態
+
         } catch (error) {
           document.getElementById('result-container').innerHTML = "<p style='text-align:center; color:#e74c3c;'>儲存成績失敗，請檢查網路連線。</p>";
           document.getElementById('action-buttons').innerHTML = "<button onclick='goHome()' style='background-color:#95a5a6;'>返回選擇檢定項目</button>";
+          updateAppState('result-section'); // 🌟 記錄狀態
         }
       }
 
@@ -1089,10 +1115,6 @@
         document.getElementById('quiz-section').style.display = 'block';
         document.getElementById('submit-btn').style.display = 'block';
         
-        // 🌟 新增：進入錯題重刷也視為在測驗狀態中
-        localStorage.setItem('currentUiState', 'quiz');
-        localStorage.setItem('currentUiSubject', currentSubject);
-
         let titleColor = currentSubject === '文編' ? '#e67e22' : '#3498db';
         let quizTitleEl = document.getElementById('quiz-title');
         quizTitleEl.style.color = titleColor;

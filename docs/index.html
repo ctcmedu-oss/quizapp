@@ -193,7 +193,7 @@
       .sticky-header.scrolled .title-main { font-size: 20px; margin-bottom: 0; }
       .sticky-header.scrolled .title-sub { font-size: 16px; }
 
-      /* 🌟 手機版防重疊動態排版設計 */
+      /* 🌟 頂級導覽列手機適應排版 */
       @media (max-width: 650px) {
         .sticky-header {
           justify-content: space-between; /* 標題與按鈕左右分開 */
@@ -397,9 +397,9 @@
     <div id="select-section" class="container">
       <button class="menu-btn" onclick="toggleMenu()">☰</button>
       <div id="side-menu" class="side-menu">
-     <a href="javascript:void(0);" onclick="showInquiry()">📊 積分查詢</a>
-     <a href="javascript:void(0);" onclick="logout()" style="color:#e74c3c;">🚪 登出系統</a>
-   </div>
+        <a href="javascript:void(0);" onclick="showInquiry()">📊 積分查詢</a>
+        <a href="javascript:void(0);" onclick="logout()" style="color:#e74c3c;">🚪 登出系統</a>
+      </div>
       <h2 id="welcome-msg" style="margin-top: 30px;"></h2>
       
       <p style="text-align:center;">請選擇您要進行的檢定題庫：</p>
@@ -596,9 +596,9 @@
         document.getElementById('welcome-msg').innerText = firstName + " 您好！";
         
         let btnsHtml = "";
-        // 將「初階文編」改為橘色 (#e67e22)，「初階攝影」改為藍色 (#3498db)
         if(currentVolunteer.canEdit) btnsHtml += "<button onclick=\"selectSubject('文編')\" style='background-color:#e67e22; margin-bottom:15px; font-size: 22px; padding: 18px;'>初階文編</button>";
         if(currentVolunteer.canPhoto) btnsHtml += "<button onclick=\"selectSubject('攝影')\" style='background-color:#3498db; font-size: 22px; padding: 18px;'>初階攝影</button>";
+
         document.getElementById('subject-buttons').innerHTML = btnsHtml;
       }
 
@@ -626,7 +626,6 @@
         try {
           const history = await callApi('getWeeklyScoreHistory', { vId: currentVolunteer.volunteerId });
           
-          // 🏆 具有尊榮感的長條圖徽章說明，移至頁面最上方
           let html = `
             <div class="milestone-legend">
               <h4>刷題里程徽章級別</h4>
@@ -670,7 +669,6 @@
             </div>
           `;
           
-          // 在積分查詢的榮譽榜下方，插入共用的「刷題積分說明」
           html += SCORING_RULES_HTML;
           
           let tablesHtml = "";
@@ -683,13 +681,11 @@
                  
                  let sortedWeeks = Object.keys(history[subj]).sort((a,b) => parseInt(a.replace(/\D/g,'')) - parseInt(b.replace(/\D/g,'')));
                  
-                 // 計算該科目的累積總分
                  let subjectTotalScore = 0;
                  sortedWeeks.forEach(week => {
                    subjectTotalScore += parseInt(history[subj][week].score) || 0;
                  });
 
-                 // 判斷該科目的里程碑
                  let milestoneText = "";
                  if (subjectTotalScore >= 15000) { milestoneText = "💎 鑽石級別 (15000分以上)"; } 
                  else if (subjectTotalScore >= 10500) { milestoneText = "🥇 金牌級別 (10500~14999分)"; } 
@@ -700,17 +696,14 @@
                  let subjIcon = subj === '攝影' ? '📷' : '📝';
                  tablesHtml += "<h3 style='color:#2c3e50; margin-top:20px; border-bottom:2px solid #eee; padding-bottom:10px;'>" + subjIcon + " " + subj + " 檢定紀錄</h3>";
                  
-                 // 插入總分與里程碑面板 (若是攝影，套用藍色主題)
                  let themeClass = subj === '攝影' ? 'theme-photo' : '';
                  tablesHtml += "<div class='score-board " + themeClass + "' style='margin-top:15px; padding: 15px;'>";
                  tablesHtml += "<p style='font-size: 18px; font-weight: bold; display: flex; align-items: center; justify-content: center; margin-top: 0; margin-bottom: 10px;'>累積總分：<span class='score-number' style='margin-left: 10px;'>" + subjectTotalScore + " 分</span></p>";
                  tablesHtml += "<p style='font-size:18px; font-weight:bold; color:#8e44ad; margin-bottom:0;'>目前里程碑：<br>" + milestoneText + "</p>";
                  tablesHtml += "</div>";
 
-                 // 繪製歷史表格
                  tablesHtml += "<table class='history-table'><tr><th>週次</th><th>當週刷題次數</th><th>該週總積分</th></tr>";
                  sortedWeeks.forEach(week => {
-                   // 修改：將「第」字拿掉，直接顯示次數
                    tablesHtml += "<tr><td>"+week+"</td><td>"+history[subj][week].maxRound+" 次</td><td><b>"+history[subj][week].score+" 分</b></td></tr>";
                  });
                  tablesHtml += "</table>";
@@ -722,7 +715,6 @@
             tablesHtml += "<p style='text-align:center; color:#7f8c8d; margin-top:20px; font-weight:bold;'>尚無您的測驗紀錄，趕快開始刷題吧！</p>";
           }
 
-          // 將榮譽榜設計放在表格的上方
           document.getElementById('inquiry-content').innerHTML = html + tablesHtml;
         } catch (error) {
           document.getElementById('inquiry-content').innerHTML = "<p style='text-align:center; color:#e74c3c; line-height:1.5;'>" + error.message + "</p>";
@@ -740,19 +732,15 @@
         document.getElementById('quiz-section').style.display = 'block';
         document.getElementById('submit-btn').style.display = 'none'; 
         
-        // 新增：在準備題庫（轉圈圈）時，先將標題清空，等待題目出來再一起顯示
         document.getElementById('quiz-title').innerHTML = "";
-        
         document.getElementById('question-container').innerHTML = "<div class='loading-container'><div class='spinner'></div><div class='loading-text'>正在為您準備 "+subject+" 題庫，請稍候...</div></div>";
         
         try {
-          // 恢復成「依序讀取」：避免 Google 伺服器因同時接收兩個請求而觸發排隊防護機制，導致卡頓變慢
           const dbRound = await callApi('getUserCurrentRound', { vId: currentVolunteer.volunteerId, subject: subject });
           roundCount = dbRound; 
           
           const questions = await callApi('getQuestions', { vId: currentVolunteer.volunteerId, subject: subject });
           
-          // 根據科目動態設定顏色與內容 (文編：橘色，攝影：藍色)
           let titleColor = subject === '文編' ? '#e67e22' : '#3498db';
           let quizTitleEl = document.getElementById('quiz-title');
           quizTitleEl.style.color = titleColor;
@@ -765,11 +753,10 @@
       }
 
       function startQuiz(questions) {
-        // 修改：根據是否為「重刷模式」來決定題目要不要洗牌
         if (isRetryMode) {
           currentTestQuestions = [...questions]; // 錯題重刷：維持原題目順序
         } else {
-          currentTestQuestions = shuffleArray([...questions]); // 全新一輪：題目重新洗牌
+          currentTestQuestions = [...questions]; // 先複製一份原始資料，後面個別處理每一題的隨機洗牌
         }
         
         var container = document.getElementById('question-container');
@@ -785,7 +772,6 @@
         currentTestQuestions.forEach(function(q, index) {
           var html = "<div class='q-block' id='q-block-" + q.id + "'>";
           
-          // 防呆機制
           let rawFormat = q.qFormat;
           let formatStr = (rawFormat !== undefined && rawFormat !== null) ? String(rawFormat).trim() : '';
           if (formatStr === '' || formatStr === 'undefined' || formatStr === 'null') {
@@ -793,8 +779,6 @@
           }
           
           let questionNumber = index + 1; 
-          
-          // 判斷多選/複選/是非
           let isMulti = formatStr.includes('多') || formatStr.includes('複');
           let inputType = isMulti ? 'checkbox' : 'radio';
           
@@ -809,29 +793,25 @@
           
           html += "<h4><span class='q-title-prefix'>" + questionNumber + ". <span class='q-type-badge " + badgeClass + "'>" + formatStr + "</span></span><span class='q-title-text'>" + q.text + "</span></h4>";
           
-         // 修改：將 'E' 加入有效的選項 key 陣列中
-  let validKeys = ['A', 'B', 'C', 'D', 'E'].filter(key => q.options && q.options[key] && String(q.options[key]).trim() !== "");
-  
-  if (!isRetryMode) {
-      // 🌟 重點修改：判斷是否需要固定順序 🌟
-      // 條件：M欄標記為"是" OR 包含"以上皆是/非"
-      let hasAllOfTheAbove = validKeys.some(key => String(q.options[key]).includes("以上皆是") || String(q.options[key]).includes("以上皆非"));
-      let forceFixed = (q.isFixed === "是" || q.isFixed === true);
-
-      if (forceFixed || hasAllOfTheAbove) {
-          q.shuffledKeys = [...validKeys]; // 不洗牌，維持 A, B, C, D, E 順序
-          console.log("此題解析含編號或特殊選項，已鎖定順序:", q.text);
-      } else {
-          q.shuffledKeys = shuffleArray([...validKeys]); // 執行隨機洗牌
-      }
-  } else {
-      // 錯題重刷時，沿用第一次作答時的選項順序
-      if (!q.shuffledKeys) {
-          q.shuffledKeys = [...validKeys];
-      }
-  }
+          let validKeys = ['A', 'B', 'C', 'D', 'E'].filter(key => q.options && q.options[key] && String(q.options[key]).trim() !== "");
           
-          // 依據決定好的順序渲染選項，但畫面上「固定顯示 A, B, C, D」
+          if (!isRetryMode) {
+              // 🌟 修正點 1：增強 M 欄鎖定邏輯的防呆與布林判斷 🌟
+              let hasAllOfTheAbove = validKeys.some(key => String(q.options[key]).includes("以上皆是") || String(q.options[key]).includes("以上皆非"));
+              let forceFixed = (q.isFixed === "是" || q.isFixed === true || String(q.isFixed).toLowerCase().trim() === "true");
+
+              if (forceFixed || hasAllOfTheAbove) {
+                  q.shuffledKeys = [...validKeys]; // 不洗牌，維持 A, B, C, D, E 順序
+                  console.log("此題已成功鎖定順序:", q.text);
+              } else {
+                  q.shuffledKeys = shuffleArray([...validKeys]); // 執行隨機洗牌
+              }
+          } else {
+              if (!q.shuffledKeys) {
+                  q.shuffledKeys = [...validKeys];
+              }
+          }
+          
           const displayLetters = ['A', 'B', 'C', 'D', 'E', 'F'];
           q.shuffledKeys.forEach(function(key, idx) {
               let displayLabel = displayLetters[idx];
@@ -841,6 +821,24 @@
           html += "</div>";
           container.innerHTML += html;
         });
+        
+        // 全新一輪時，將題目陣列隨機打亂，但必須「在每一題的 shuffledKeys 產生之後」才打亂題目順序
+        if (!isRetryMode) {
+          shuffleArray(currentTestQuestions);
+          // 重新整理題號標題
+          setTimeout(() => {
+            currentTestQuestions.forEach((q, idx) => {
+               let block = document.getElementById('q-block-' + q.id);
+               if(block) {
+                 let h4 = block.querySelector('h4');
+                 let formatStr = q.qFormat || '單選題';
+                 let badgeClass = formatStr.includes('多') || formatStr.includes('複') ? 'badge-multi' : (formatStr.includes('是非') ? 'badge-boolean' : 'badge-single');
+                 h4.innerHTML = "<span class='q-title-prefix'>" + (idx + 1) + ". <span class='q-type-badge " + badgeClass + "'>" + formatStr + "</span></span><span class='q-title-text'>" + q.text + "</span>";
+               }
+            });
+          }, 50);
+        }
+
         document.getElementById('submit-btn').style.display = 'block';
       }
 
@@ -885,7 +883,7 @@
           return;
         }
 
-        window.scrollTo(0, 0); // 提交後自動回到最上方查看成績
+        window.scrollTo(0, 0); 
         let results = [];
         let html = "";
         wrongQuestionsQueue = []; 
@@ -929,7 +927,6 @@
 
           const displayLetters = ['A', 'B', 'C', 'D', 'E', 'F'];
 
-          // 修改：將資料庫的原始正確答案，翻譯成畫面上的新標籤，並強制依照 A, B, C, D 順序排列 (加入防呆機制)
           let correctAnsObjArr = [];
           dbAnswerStr.split(',').forEach(function(k) { 
               if(q.options && q.options[k]) {
@@ -942,63 +939,50 @@
               } 
           });
           
-          // 依照顯示的字母標籤進行排序
           correctAnsObjArr.sort((a, b) => a.label.localeCompare(b.label));
-          // 修改：只擷取 label (A, B, C)，不擷取完整 text 文字
-			let correctAnsText = correctAnsObjArr.map(obj => obj.label).join("、");
+          let correctAnsText = correctAnsObjArr.map(obj => obj.label).join("、");
 
           html += "<div class='q-block'>";
           html += "<p style='display:flex; align-items:flex-start; margin-bottom: 8px;'><span class='q-title-prefix'><b>" + questionNumber + ". </b><span class='q-type-badge " + badgeClass + "'>" + formatStr + "</span></span><span class='q-title-text' style='font-weight:bold;'>" + q.text + "</span></p>";
           
-          // 新增：重現作答畫面與選項，並根據對錯上色
           let inputType = isMulti ? 'checkbox' : 'radio';
           let userSelectedArr = ansValue.split(',');
           
-          // 修改：確保結果畫面的選項順序與作答時的隨機順序完全一致 (加入 'E' 及防呆機制)
-          let keysToRender = q.shuffledKeys || ['A', 'B', 'C', 'D', 'E'].filter(k => q.options && q.options[k] && String(q.options[k]).trim() !== "");
+          // 🌟 修正點 2：在結果面板中，強制沿用作答時的隨機順序，不允許再次被洗牌 🌟
+          let validKeys = ['A', 'B', 'C', 'D', 'E'].filter(k => q.options && q.options[k] && String(q.options[k]).trim() !== "");
+          let keysToRender = q.shuffledKeys || validKeys;
           
-         keysToRender.forEach(function(key, idx) {
+          keysToRender.forEach(function(key, idx) {
                  let displayLabel = displayLetters[idx];
                  let isSelected = userSelectedArr.includes(key);
                  let checkedAttr = isSelected ? "checked" : "";
-                 
-                 // 新增：判斷這一個選項本身是不是在正確答案清單中
                  let isOptionCorrect = dbAnswerStr.split(',').includes(key);
                  
-                 // --- 修改開始：定義選項樣式 ---
-              let labelStyle = "display: flex; align-items: flex-start; padding: 8px 0; cursor: default;";
-              
-              if (isOptionCorrect) {
-                  // 🌟 只要是正確答案：一律呈現綠色粗體 (無論有沒有選)
-                  labelStyle += " color: #27ae60; font-weight: bold;";
-              } else if (isSelected && !isOptionCorrect) {
-                  // 使用者選錯的選項：呈現紅色粗體
-                  labelStyle += " color: #e74c3c; font-weight: bold;";
-              }
-
-              if (isSelected) {
-                  // 被選中的選項：加上淺灰色背景底塊以示區別
-                  labelStyle += " background-color: #f1f2f6; padding: 8px 12px; margin: 2px -12px; border-radius: 6px;";
-              }
-              // --- 修改結束 ---
+                 let labelStyle = "display: flex; align-items: flex-start; padding: 8px 0; cursor: default;";
                  
-                // 請確保這行 input 標籤有包含 disabled 且正確觸發 checkedAttr
-html += "<label style='" + labelStyle + "'><div class='opt-prefix'><input type='" + inputType + "' disabled " + checkedAttr + "> " + displayLabel + ". </div><div class='opt-text'>" + q.options[key] + "</div></label>";
+                 if (isOptionCorrect) {
+                     labelStyle += " color: #27ae60; font-weight: bold;";
+                 } else if (isSelected && !isOptionCorrect) {
+                     labelStyle += " color: #e74c3c; font-weight: bold;";
+                 }
+
+                 if (isSelected) {
+                     labelStyle += " background-color: #f1f2f6; padding: 8px 12px; margin: 2px -12px; border-radius: 6px;";
+                 }
+                     
+                 html += "<label style='" + labelStyle + "'><div class='opt-prefix'><input type='" + inputType + "' disabled " + checkedAttr + "> " + displayLabel + ". </div><div class='opt-text'>" + q.options[key] + "</div></label>";
           });
 
           let openTag = isCorrect ? "" : "open"; 
           let summaryText = "點此查看重點解析";
           
           if (!isCorrect) {
-            // 若答錯，使用 flex 確保長答案也能整齊縮排在「正確答案：」文字後方
-html += "<div style='display: flex; color: #27ae60; font-weight: bold; margin-top: 10px; line-height: 1.5;'><span style='flex-shrink: 0;'>正確答案：</span><span>" + correctAnsText + "</span></div>";
+            html += "<div style='display: flex; color: #27ae60; font-weight: bold; margin-top: 10px; line-height: 1.5;'><span style='flex-shrink: 0;'>正確答案：</span><span>" + correctAnsText + "</span></div>";
             wrongQuestionsQueue.push(q); 
           } else {
-            // 新增：若答對，在下方加上「作答正確！」提示
             html += "<p style='color: #27ae60; font-weight: bold; margin-top: 10px;'>作答正確！</p>";
           }
           
-          // 若為攝影，加上專屬藍色主題 Class
           let themeClass = currentSubject === '攝影' ? 'theme-photo' : '';
           html += "<details class='explanation-details " + themeClass + "' " + openTag + ">";
           html += "<summary class='explanation-summary'>💡 " + summaryText + "</summary>";
@@ -1009,8 +993,6 @@ html += "<div style='display: flex; color: #27ae60; font-weight: bold; margin-to
         document.getElementById('quiz-section').style.display = 'none';
         document.getElementById('result-section').style.display = 'block';
         document.getElementById('result-container').innerHTML = "<div class='loading-container'><div class='spinner'></div><div class='loading-text'>成績與里程碑計算中，請稍候...</div></div>";
-        
-        // 新增：在計算成績與等待 API 的期間，先將下方按鈕區塊清空，確保它們只在結果出來時才一起顯示
         document.getElementById('action-buttons').innerHTML = "";
 
         try {
@@ -1030,7 +1012,6 @@ html += "<div style='display: flex; color: #27ae60; font-weight: bold; margin-to
           else if (total >= 1500) { milestoneText = "🥉 銅牌級別 (1500~5999分)"; } 
           else { milestoneText = "⭐ 新星級別 (1499分以下)"; }
 
-          // 若為攝影，加上專屬藍色主題 Class
           let themeClass = currentSubject === '攝影' ? 'theme-photo' : '';
           let scoreHtml = "<div class='score-board " + themeClass + "'>";
           let modeText = isRetryMode ? "錯題重刷" : "測驗";
@@ -1045,12 +1026,9 @@ html += "<div style='display: flex; color: #27ae60; font-weight: bold; margin-to
           scoreHtml += "<p style='font-size:15px; color:#555; margin:5px 0;'>🎯 目前前 5% 的測驗者平均得分為 <b>" + scoreData.top5Avg + " 分</b></p>";
           scoreHtml += "</div></div>";
           
-          // 將原本的 scoreHtml + html 改為 html + scoreHtml，讓積分面板顯示在題目解析的下方
           document.getElementById('result-container').innerHTML = html + scoreHtml;
           
           let actionBtns = "";
-          
-          // 在測驗結果與按鈕之間，插入共用的「刷題積分說明」
           actionBtns += SCORING_RULES_HTML;
 
           if (wrongQuestionsQueue.length > 0) {
@@ -1063,12 +1041,10 @@ html += "<div style='display: flex; color: #27ae60; font-weight: bold; margin-to
           }
           
           actionBtns += "<button onclick='showInquiry()' style='background-color:#3498db;'>📊 積分查詢</button>";
-          
           document.getElementById('action-buttons').innerHTML = actionBtns;
 
         } catch (error) {
           document.getElementById('result-container').innerHTML = "<p style='text-align:center; color:#e74c3c;'>儲存成績失敗，請檢查網路連線。</p>";
-          // 新增：若發生連線錯誤，提供返回按鈕避免畫面卡死
           document.getElementById('action-buttons').innerHTML = "<button onclick='goHome()' style='background-color:#95a5a6;'>返回選擇檢定項目</button>";
         }
       }
@@ -1080,7 +1056,6 @@ html += "<div style='display: flex; color: #27ae60; font-weight: bold; margin-to
         document.getElementById('quiz-section').style.display = 'block';
         document.getElementById('submit-btn').style.display = 'block';
         
-        // 同步修改錯題重刷的標題顏色
         let titleColor = currentSubject === '文編' ? '#e67e22' : '#3498db';
         let quizTitleEl = document.getElementById('quiz-title');
         quizTitleEl.style.color = titleColor;
@@ -1090,7 +1065,7 @@ html += "<div style='display: flex; color: #27ae60; font-weight: bold; margin-to
       }
 
       function goHome() {
-        window.scrollTo(0, 0); // 確保退回選單時畫面回到最上方
+        window.scrollTo(0, 0); 
         isRetryMode = false;
         wrongQuestionsQueue = [];
         document.getElementById('side-menu').style.display = 'none';

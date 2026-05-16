@@ -189,13 +189,14 @@
         box-shadow: none; /* 移除陰影 */
         border: none;     /* 移除白邊 */
       }
+      /* ⭐ 核心動畫：全方位繞行慶祝動畫 (原地縮小離開版) */
       @keyframes fullCelebrationAnimation {
-        /* == 1. 彈入螢幕中心 == */
+        /* == 1. 彈入螢幕中心 (0% - 20%) == */
         0% { top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0); opacity: 0; }
         15% { top: 50%; left: 50%; transform: translate(-50%, -50%) scale(1.1); opacity: 1; }
         20% { top: 50%; left: 50%; transform: translate(-50%, -50%) scale(1); opacity: 1; }
 
-        /* == 2. 在螢幕順時針繞一圈 (無旋轉) == */
+        /* == 2. 在螢幕順時針繞一圈 (無旋轉) (20% - 70%) == */
         20% { top: 50%; left: 50%; transform: translate(-50%, -50%) scale(1); opacity: 1; }
         25% { top: 20%; left: 50%; transform: translate(-50%, -50%) scale(1); opacity: 1; } /* 上 */
         36% { top: 50%; left: 80%; transform: translate(-50%, -50%) scale(1); opacity: 1; } /* 右 */
@@ -204,9 +205,17 @@
         65% { top: 20%; left: 50%; transform: translate(-50%, -50%) scale(1); opacity: 1; } /* 回到上方完成一圈 */
         70% { top: 50%; left: 50%; transform: translate(-50%, -50%) scale(1); opacity: 1; } /* 回到中心 */
 
-        /* == 3. 從旁邊飛出去 == */
+        /* == 3. 原地縮小消失 (70% - 100%) == */
+        /* 在中心停留一小段時間 */
         85% { top: 50%; left: 50%; transform: translate(-50%, -50%) scale(1); opacity: 1; }
-        100% { top: 50%; left: 150%; transform: translate(-50%, -50%) scale(0); opacity: 0; }
+        
+        /* 🌟 修改這裡：保持在中心 (top/left 50%)，縮小為 0 (scale(0)) */
+        100% { 
+          top: 50%; 
+          left: 50%; 
+          transform: translate(-50%, -50%) scale(0); 
+          opacity: 0; 
+        }
       }
 
       #login-section, #select-section, #quiz-section, #result-section, #inquiry-section { display: none; }

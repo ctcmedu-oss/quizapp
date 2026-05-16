@@ -507,20 +507,19 @@
             <div class="milestone-legend">
               <h4>刷題里程徽章級別</h4>
               <div class="v-staircase-wrapper">
-                
                 <div class="v-stair-row v-bar-star">
                   <div class="v-stair-icon"><img src="https://drive.google.com/thumbnail?id=16llBhrcNy0VO0_0yvELk7StxXRTl7xts&sz=w300" alt="新星"></div>
-                  <div class="v-stair-info"><div class="v-stair-name">新星</div><div class="v-stair-score">1499分以下</div></div>
+                  <div class="v-stair-info"><div class="v-stair-name">新星</div><div class="v-stair-score">4499分以下</div></div>
                 </div>
 
                 <div class="v-stair-row v-bar-bronze">
                   <div class="v-stair-icon"><img src="https://drive.google.com/thumbnail?id=19XDvL8SIKN8zBnGIe-KIkxPgcN3ygK52&sz=w300" alt="銅牌"></div>
-                  <div class="v-stair-info"><div class="v-stair-name">銅牌</div><div class="v-stair-score">1500 ~ 5999分</div></div>
+                  <div class="v-stair-info"><div class="v-stair-name">銅牌</div><div class="v-stair-score">4500 ~ 7499分</div></div>
                 </div>
 
                 <div class="v-stair-row v-bar-silver">
                   <div class="v-stair-icon"><img src="https://drive.google.com/thumbnail?id=1B4WFnY7C5M5PDj1NBnTH7sS81j625p9H&sz=w300" alt="銀牌"></div>
-                  <div class="v-stair-info"><div class="v-stair-name">銀牌</div><div class="v-stair-score">6000 ~ 10499分</div></div>
+                  <div class="v-stair-info"><div class="v-stair-name">銀牌</div><div class="v-stair-score">7500 ~ 10499分</div></div>
                 </div>
 
                 <div class="v-stair-row v-bar-gold">
@@ -545,18 +544,18 @@
                  let sortedWeeks = Object.keys(history[subj]).sort((a,b) => parseInt(a.replace(/\D/g,'')) - parseInt(b.replace(/\D/g,'')));
                  let subjectTotalScore = 0;
                  sortedWeeks.forEach(week => { subjectTotalScore += parseInt(history[subj][week].score) || 0; });
-                 // ⭐ 修改這裡：測驗結果顯示的目前里程碑改用圖片
-          let milestoneIconStyle = "width: 100px; height: auto; vertical-align: middle; margin-right: 15px; filter: drop-shadow(0 3px 5px rgba(0,0,0,0.3));"; 
+                 // ⭐ 更新積分查詢的里程碑計算與級距
+                 let milestoneIconStyle = "width: 100px; height: auto; vertical-align: middle; margin-right: 15px; filter: drop-shadow(0 3px 5px rgba(0,0,0,0.3));"; 
 
                  let milestoneText = subjectTotalScore >= 15000 
                    ? `<img src="https://drive.google.com/thumbnail?id=1T3KZ5YhBfdTgUxEAUvT9TXPvG6iZoEHl&sz=w300" style="${milestoneIconStyle}" alt="鑽石"> 鑽石級別 (15000分以上)`
                    : (subjectTotalScore >= 10500 
                        ? `<img src="https://drive.google.com/thumbnail?id=1nbUIdxqEw1BDl4GmBGSA_iUo12p77CTR&sz=w300" style="${milestoneIconStyle}" alt="金牌"> 金牌級別 (10500~14999分)` 
-                       : (subjectTotalScore >= 6000 
-                           ? `<img src="https://drive.google.com/thumbnail?id=1B4WFnY7C5M5PDj1NBnTH7sS81j625p9H&sz=w300" style="${milestoneIconStyle}" alt="銀牌"> 銀牌級別 (6000~10499分)`
-                           : (subjectTotalScore >= 1500 
-                               ? `<img src="https://drive.google.com/thumbnail?id=19XDvL8SIKN8zBnGIe-KIkxPgcN3ygK52&sz=w300" style="${milestoneIconStyle}" alt="銅牌"> 銅牌級別 (1500~5999分)` 
-                               : `<img src="https://drive.google.com/thumbnail?id=16llBhrcNy0VO0_0yvELk7StxXRTl7xts&sz=w300" style="${milestoneIconStyle}" alt="新星"> 新星級別 (1499分以下)`)));
+                       : (subjectTotalScore >= 7500 
+                           ? `<img src="https://drive.google.com/thumbnail?id=1B4WFnY7C5M5PDj1NBnTH7sS81j625p9H&sz=w300" style="${milestoneIconStyle}" alt="銀牌"> 銀牌級別 (7500~10499分)`
+                           : (subjectTotalScore >= 4500 
+                               ? `<img src="https://drive.google.com/thumbnail?id=19XDvL8SIKN8zBnGIe-KIkxPgcN3ygK52&sz=w300" style="${milestoneIconStyle}" alt="銅牌"> 銅牌級別 (4500~7499分)` 
+                               : `<img src="https://drive.google.com/thumbnail?id=16llBhrcNy0VO0_0yvELk7StxXRTl7xts&sz=w300" style="${milestoneIconStyle}" alt="新星"> 新星級別 (4499分以下)`)));
                  let subjIcon = subj === '攝影' ? '📷' : '📝';
                  tablesHtml += "<h3 style='color:#2c3e50; margin-top:30px; border-bottom:3px solid #eee; padding-bottom:15px; font-size: 36px;'>" + subjIcon + " " + subj + " 檢定紀錄</h3>";
                  let themeClass = subj === '攝影' ? 'theme-photo' : '';
@@ -764,17 +763,18 @@
             vId: currentVolunteer.volunteerId, subject: currentSubject, roundCount: roundCount, isRetryMode: isRetryMode, results: results
           });
 
+          // ⭐ 更新測驗結果的里程碑計算與級距
           let milestoneIconStyle = "width: 100px; height: auto; vertical-align: middle; margin-right: 15px; filter: drop-shadow(0 3px 5px rgba(0,0,0,0.3));"; 
 
           let milestoneText = scoreData.totalScore >= 15000 
             ? `<img src="https://drive.google.com/thumbnail?id=1T3KZ5YhBfdTgUxEAUvT9TXPvG6iZoEHl&sz=w300" style="${milestoneIconStyle}" alt="鑽石"> 鑽石級別 (15000分以上)`
             : (scoreData.totalScore >= 10500 
                 ? `<img src="https://drive.google.com/thumbnail?id=1nbUIdxqEw1BDl4GmBGSA_iUo12p77CTR&sz=w300" style="${milestoneIconStyle}" alt="金牌"> 金牌級別 (10500~14999分)` 
-                : (scoreData.totalScore >= 6000 
-                    ? `<img src="https://drive.google.com/thumbnail?id=1B4WFnY7C5M5PDj1NBnTH7sS81j625p9H&sz=w300" style="${milestoneIconStyle}" alt="銀牌"> 銀牌級別 (6000~10499分)`
-                    : (scoreData.totalScore >= 1500 
-                        ? `<img src="https://drive.google.com/thumbnail?id=19XDvL8SIKN8zBnGIe-KIkxPgcN3ygK52&sz=w300" style="${milestoneIconStyle}" alt="銅牌"> 銅牌級別 (1500~5999分)` 
-                        : `<img src="https://drive.google.com/thumbnail?id=16llBhrcNy0VO0_0yvELk7StxXRTl7xts&sz=w300" style="${milestoneIconStyle}" alt="新星"> 新星級別 (1499分以下)`)));
+                : (scoreData.totalScore >= 7500 
+                    ? `<img src="https://drive.google.com/thumbnail?id=1B4WFnY7C5M5PDj1NBnTH7sS81j625p9H&sz=w300" style="${milestoneIconStyle}" alt="銀牌"> 銀牌級別 (7500~10499分)`
+                    : (scoreData.totalScore >= 4500 
+                        ? `<img src="https://drive.google.com/thumbnail?id=19XDvL8SIKN8zBnGIe-KIkxPgcN3ygK52&sz=w300" style="${milestoneIconStyle}" alt="銅牌"> 銅牌級別 (4500~7499分)` 
+                        : `<img src="https://drive.google.com/thumbnail?id=16llBhrcNy0VO0_0yvELk7StxXRTl7xts&sz=w300" style="${milestoneIconStyle}" alt="新星"> 新星級別 (4499分以下)`)));
           let scoreHtml = "<div class='score-board " + (currentSubject === '攝影' ? 'theme-photo' : '') + "'><h3>["+currentSubject+"] 第 " + roundCount + " 次 " + (isRetryMode ? "錯題重刷" : "測驗") + " 完成！</h3><p style='font-size: 32px; font-weight: bold; display: flex; align-items: center; justify-content: center; margin: 15px 0;'>本次獲得分數：<span class='score-number' style='margin-left: 15px;'>" + scoreData.roundScore + " 分</span></p><hr style='border:0; border-top:2px dashed #f39c12; margin:25px 0;'><p style='font-size: 32px; font-weight: bold; display: flex; align-items: center; justify-content: center; margin: 15px 0;'>累積總分：<span class='score-number' style='margin-left: 15px;'> " + scoreData.totalScore + " 分</span></p><p style='font-size:32px; font-weight:bold; color:#8e44ad; margin-top:20px; line-height: 1.5;'>目前里程碑：<br>" + milestoneText + "</p><div style='background:#f4f6f9; padding:20px; border-radius:10px; margin-top:25px; text-align:left;'><p style='font-size:28px; color:#555; margin:10px 0;'>🏆 您的得分超越了 <b>" + scoreData.percentile + "%</b> 的測驗者</p><p style='font-size:28px; color:#555; margin:10px 0;'>🎯 目前前 5% 的測驗者平均得分為 <b>" + scoreData.top5Avg + " 分</b></p></div></div>";
           document.getElementById('result-container').innerHTML = html + scoreHtml;
           

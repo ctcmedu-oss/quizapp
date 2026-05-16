@@ -1039,11 +1039,20 @@
             html += "<p style='color: #27ae60; font-weight: bold; margin-top: 10px;'>作答正確！</p>";
           }
           
-          let themeClass = currentSubject === '攝影' ? 'theme-photo' : '';
-          html += "<details class='explanation-details " + themeClass + "' " + openTag + ">";
-          html += "<summary class='explanation-summary'>💡 " + summaryText + "</summary>";
-          html += "<div class='explanation-content'>" + q.explanation + "</div>";
-          html += "</details></div>";
+          // 🌟 判斷是否有解析內容 (排除空白、null、undefined)
+          let expText = String(q.explanation || "").trim();
+          let hasExplanation = expText !== "" && expText !== "undefined" && expText !== "null";
+
+          if (hasExplanation) {
+              let themeClass = currentSubject === '攝影' ? 'theme-photo' : '';
+              html += "<details class='explanation-details " + themeClass + "' " + openTag + ">";
+              html += "<summary class='explanation-summary'>💡 " + summaryText + "</summary>";
+              html += "<div class='explanation-content'>" + expText + "</div>";
+              html += "</details>";
+          }
+          
+          // 確保每一題的區塊 (div.q-block) 都有正常收尾關閉
+          html += "</div>";
         });
 
         document.getElementById('quiz-section').style.display = 'none';

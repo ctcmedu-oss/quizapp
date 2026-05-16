@@ -7,12 +7,13 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <title>文教長期義工檢定刷題系統</title>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
-      /* 🌟 1. 全域最小字級設定為 32px */
+      /* 全域最小字級設定為 32px */
       body { font-family: 'Arial', sans-serif; padding: 15px; background-color: #f4f6f9; color: #333; margin: 0; font-size: 32px; line-height: 1.5; }
       .container { max-width: 1000px; margin: 20px auto; padding: 25px; background: white; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); position: relative;}
       
-      /* 🌟 2. 標題與按鈕等比例放大 */
+      /* 標題與按鈕等比例放大 */
       h2 { text-align: center; color: #2c3e50; margin-top: 10px; font-size: 56px; line-height: 1.3;}
       input[type="text"], button { width: 100%; padding: 20px; margin: 15px 0; font-size: 36px; box-sizing: border-box; border-radius: 10px; border: 2px solid #ccc;}
       button { background-color: #3498db; color: white; border: none; cursor: pointer; font-weight: bold; transition: background 0.3s;}
@@ -20,7 +21,7 @@
       
       .q-block { margin-bottom: 40px; border-bottom: 2px solid #eee; padding-bottom: 20px; }
       
-      /* 🌟 新增：題目排版專屬設定 (解決手機版斷行與對齊問題) */
+      /* 題目排版專屬設定 (解決手機版斷行與對齊問題) */
       .q-header { display: flex; align-items: flex-start; margin-bottom: 20px; }
       .q-number { font-size: 36px; font-weight: bold; color: #34495e; margin-right: 12px; flex-shrink: 0; line-height: 1.5; }
       .q-content { display: flex; flex-direction: row; align-items: flex-start; flex-grow: 1; }
@@ -36,7 +37,7 @@
       .q-block label { display: flex; align-items: flex-start; padding: 15px 0; cursor: pointer; line-height: 1.5; font-size: 36px; }
       .opt-prefix { flex-shrink: 0; white-space: nowrap; margin-right: 12px; display: flex; align-items: flex-start; }
       
-      /* 🌟 3. 單選/多選框放大，配合 36px 的選項文字 */
+      /* 單選/多選框放大，配合 36px 的選項文字 */
       .opt-prefix input[type="checkbox"],
       .opt-prefix input[type="radio"] {
         -webkit-appearance: none;
@@ -127,7 +128,7 @@
       .sticky-header.scrolled .title-main { font-size: 40px; margin-bottom: 0; }
       .sticky-header.scrolled .title-sub { font-size: 32px; }
 
-      /* 🌟 手機版適應：讓題目自動掉落至下一行並切齊 */
+      /* 手機版適應：讓題目自動掉落至下一行並切齊 */
       @media (max-width: 800px) {
         .sticky-header { flex-direction: column; gap: 15px; padding: 20px; justify-content: center; }
         .back-btn-text { position: relative; right: auto; top: auto; transform: none; width: 100%; white-space: normal; text-align: center; }
@@ -136,7 +137,6 @@
         .title-sub { font-size: 36px; }
         .sticky-header.scrolled .quiz-title-wrapper { flex-direction: column; }
         
-        /* 手機版：標籤與題目斷行，因在同一個容器內，左側會自然對齊 */
         .q-content { flex-direction: column; }
         .q-badge-wrapper { margin-bottom: 12px; }
       }
@@ -178,24 +178,6 @@
       .login-image-wrapper { width: 100%; text-align: center; margin-bottom: 20px; }
       .hero-image { width: 100%; height: auto; border-radius: 16px; object-fit: contain; display: block; margin: 0 auto; }
       .login-form-wrapper { padding: 20px 0 0 0; display: flex; flex-direction: column; justify-content: center; }
-		
-	/* 再刷一次按鈕樣式 */
-	.retry-btn {
- 	 background-color: #27ae60; /* 綠色 */
-  	color: white;
- 	 margin-bottom: 20px;
-	  font-size: 36px;
- 	 padding: 20px;
- 	 border-radius: 10px;
- 	 border: none;
- 	 cursor: pointer;
- 	 font-weight: bold;
- 	 width: 100%;
-	}
-
-	.retry-btn:hover {
-  	background-color: #219150; /* 懸停時變深 */
-	}
     </style>
   </head>
   <body>
@@ -661,7 +643,6 @@
             badgeClass = 'badge-single';
           }
           
-          // 🌟 改變 DOM 結構：讓「題號」、「標籤」與「文字」分離
           html += "<div class='q-header'>";
           html += "  <div class='q-number'>" + questionNumber + ". </div>";
           html += "  <div class='q-content'>";
@@ -804,7 +785,6 @@
 
           html += "<div class='q-block'>";
           
-          // 🌟 提交成績後的題目回顧區塊，也套用新的排版結構
           html += "<div class='q-header'>";
           html += "  <div class='q-number'>" + questionNumber + ". </div>";
           html += "  <div class='q-content'>";
@@ -908,10 +888,11 @@
           if (wrongQuestionsQueue.length > 0) {
             actionBtns += "<p style='color:#e74c3c; font-weight:bold; text-align:center; margin-bottom:25px; font-size:36px;'>您有答錯的題目，是否要進行錯題重刷以獲取積分？</p>";
             actionBtns += "<button onclick='startRetry()' style='background-color:#f39c12; margin-bottom:20px; font-size: 36px;'>進入錯題重刷</button>";
-			actionBtns += "<button onclick='selectSubject(\"" + currentSubject + "\")' class='retry-btn'>再刷一次</button>";
+            // 🌟 綠色的「再刷一次」按鈕在這裡
+            actionBtns += "<button onclick='selectSubject(\"" + currentSubject + "\")' style='background-color:#27ae60; margin-bottom:20px; font-size: 36px;'>↻ 再刷一次</button>";
             actionBtns += "<button onclick='goHome()' style='background-color:#95a5a6; margin-bottom:20px; font-size: 36px;'>放棄重刷，回到檢定項目選擇</button>";
           } else {
-            actionBtns += "<button onclick='selectSubject(\"" + currentSubject + "\")' style='background-color:#27ae60; margin-bottom:20px; font-size: 36px;'>再刷一次</button>";
+            actionBtns += "<button onclick='selectSubject(\"" + currentSubject + "\")' style='background-color:#27ae60; margin-bottom:20px; font-size: 36px;'>↻ 再刷一次</button>";
             actionBtns += "<button onclick='goHome()' style='background-color:#95a5a6; margin-bottom:20px; font-size: 36px;'>返回檢定選擇</button>";
           }
           
@@ -919,6 +900,33 @@
           document.getElementById('action-buttons').innerHTML = actionBtns;
 
           updateAppState('result-section'); 
+
+          // 🌟 滿分拉炮特效 (全數答對時觸發)
+          if (wrongQuestionsQueue.length === 0) {
+            let duration = 3000;
+            let end = Date.now() + duration;
+
+            (function frame() {
+              confetti({
+                particleCount: 15,
+                angle: 60,
+                spread: 55,
+                origin: { x: 0 },
+                zIndex: 9999
+              });
+              confetti({
+                particleCount: 15,
+                angle: 120,
+                spread: 55,
+                origin: { x: 1 },
+                zIndex: 9999
+              });
+
+              if (Date.now() < end) {
+                requestAnimationFrame(frame);
+              }
+            }());
+          }
 
         } catch (error) {
           document.getElementById('result-container').innerHTML = "<p style='text-align:center; color:#e74c3c; font-size: 36px;'>儲存成績失敗，請檢查網路連線。</p>";

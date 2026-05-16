@@ -527,12 +527,27 @@
         return name;
       }
 
+      // 🌟 修改：網頁初始化邏輯，加入狀態路由判斷
       window.onload = function() {
         try {
           let savedUser = localStorage.getItem('volunteerData');
           if (savedUser) {
             currentVolunteer = JSON.parse(savedUser);
-            renderSelectSection();
+            
+            // 讀取上一次暫存的頁面狀態
+            let savedState = localStorage.getItem('currentUiState');
+            let savedSubject = localStorage.getItem('currentUiSubject');
+            
+            if (savedState === 'quiz' && savedSubject) {
+              // 重新載入原本選取的測驗
+              selectSubject(savedSubject);
+            } else if (savedState === 'inquiry') {
+              // 重新載入積分查詢
+              showInquiry();
+            } else {
+              // 預設回到選擇題庫畫面
+              renderSelectSection();
+            }
           } else {
             document.getElementById('login-section').style.display = 'block';
           }
@@ -592,6 +607,10 @@
         document.querySelectorAll('.container').forEach(c => c.style.display = 'none');
         document.getElementById('select-section').style.display = 'block';
         
+        // 🌟 新增：回到主畫面時重置狀態
+        localStorage.removeItem('currentUiState');
+        localStorage.removeItem('currentUiSubject');
+        
         let firstName = extractFirstName(currentVolunteer.volunteerName);
         document.getElementById('welcome-msg').innerText = firstName + " 您好！";
         
@@ -606,6 +625,8 @@
         window.scrollTo(0, 0);
         try {
           localStorage.removeItem('volunteerData');
+          localStorage.removeItem('currentUiState');
+          localStorage.removeItem('currentUiSubject');
         } catch(error) {}
         currentVolunteer = {};
         document.getElementById('vName').value = "";
@@ -623,6 +644,10 @@
         document.getElementById('inquiry-section').style.display = 'block';
         document.getElementById('inquiry-content').innerHTML = "<div class='loading-container'><div class='spinner'></div><div class='loading-text'>讀取歷史紀錄中...</div></div>";
         
+        // 🌟 新增：記憶積分查詢畫面狀態
+        localStorage.setItem('currentUiState', 'inquiry');
+        localStorage.removeItem('currentUiSubject');
+
         try {
           const history = await callApi('getWeeklyScoreHistory', { vId: currentVolunteer.volunteerId });
           
@@ -735,6 +760,10 @@
         document.getElementById('quiz-title').innerHTML = "";
         document.getElementById('question-container').innerHTML = "<div class='loading-container'><div class='spinner'></div><div class='loading-text'>正在為您準備 "+subject+" 題庫，請稍候...</div></div>";
         
+        // 🌟 新增：記憶目前進入的測驗科目狀態
+        localStorage.setItem('currentUiState', 'quiz');
+        localStorage.setItem('currentUiSubject', subject);
+
         try {
           const dbRound = await callApi('getUserCurrentRound', { vId: currentVolunteer.volunteerId, subject: subject });
           roundCount = dbRound; 
@@ -889,6 +918,10 @@
         wrongQuestionsQueue = []; 
         document.getElementById('submit-btn').style.display = 'none'; 
 
+        // 🌟 新增：送出答案時，代表作答結束，可以清除暫存測驗狀態，避免看完成績重整頁面又被拉進空測驗
+        localStorage.removeItem('currentUiState');
+        localStorage.removeItem('currentUiSubject');
+
         currentTestQuestions.forEach(function(q, index) {
           let ansValue = "";
           let isCorrect = false;
@@ -953,24 +986,24 @@
           let keysToRender = q.shuffledKeys || validKeys;
           
           keysToRender.forEach(function(key, idx) {
-                 let displayLabel = displayLetters[idx];
-                 let isSelected = userSelectedArr.includes(key);
-                 let checkedAttr = isSelected ? "checked" : "";
-                 let isOptionCorrect = dbAnswerStr.split(',').includes(key);
-                 
-                 let labelStyle = "display: flex; align-items: flex-start; padding: 8px 0; cursor: default;";
-                 
-                 if (isOptionCorrect) {
-                     labelStyle += " color: #27ae60; font-weight: bold;";
-                 } else if (isSelected && !isOptionCorrect) {
-                     labelStyle += " color: #e74c3c; font-weight: bold;";
-                 }
+                  let displayLabel = displayLetters[idx];
+                  let isSelected = userSelectedArr.includes(key);
+                  let checkedAttr = isSelected ? "checked" : "";
+                  let isOptionCorrect = dbAnswerStr.split(',').includes(key);
+                  
+                  let labelStyle = "display: flex; align-items: flex-start; padding: 8px 0; cursor: default;";
+                  
+                  if (isOptionCorrect) {
+                      labelStyle += " color: #27ae60; font-weight: bold;";
+                  } else if (isSelected && !isOptionCorrect) {
+                      labelStyle += " color: #e74c3c; font-weight: bold;";
+                  }
 
-                 if (isSelected) {
-                     labelStyle += " background-color: #f1f2f6; padding: 8px 12px; margin: 2px -12px; border-radius: 6px;";
-                 }
+                  if (isSelected) {
+                      labelStyle += " background-color: #f1f2f6; padding: 8px 12px; margin: 2px -12px; border-radius: 6px;";
+                  }
                      
-                 html += "<label style='" + labelStyle + "'><div class='opt-prefix'><input type='" + inputType + "' disabled " + checkedAttr + "> " + displayLabel + ". </div><div class='opt-text'>" + q.options[key] + "</div></label>";
+                  html += "<label style='" + labelStyle + "'><div class='opt-prefix'><input type='" + inputType + "' disabled " + checkedAttr + "> " + displayLabel + ". </div><div class='opt-text'>" + q.options[key] + "</div></label>";
           });
 
           let openTag = isCorrect ? "" : "open"; 
@@ -1056,6 +1089,10 @@
         document.getElementById('quiz-section').style.display = 'block';
         document.getElementById('submit-btn').style.display = 'block';
         
+        // 🌟 新增：進入錯題重刷也視為在測驗狀態中
+        localStorage.setItem('currentUiState', 'quiz');
+        localStorage.setItem('currentUiSubject', currentSubject);
+
         let titleColor = currentSubject === '文編' ? '#e67e22' : '#3498db';
         let quizTitleEl = document.getElementById('quiz-title');
         quizTitleEl.style.color = titleColor;

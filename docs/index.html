@@ -182,15 +182,31 @@
         z-index: 10000; pointer-events: none; display: none;
       }
       #celebration-overlay img {
-        max-width: 80vw; max-height: 70vh; border-radius: 20px;
-        box-shadow: 0 10px 50px rgba(0,0,0,0.4); border: 5px solid white;
+        /* 放大圖片並確保沒有背景框線與陰影 */
+        max-width: 120vw; 
+        max-height: 90vh; 
+        border-radius: 0;
+        box-shadow: none; /* 移除陰影 */
+        border: none;     /* 移除白邊 */
       }
-      @keyframes popInOut {
-        0% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
-        15% { transform: translate(-50%, -50%) scale(1.1); opacity: 1; }
-        20% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
-        80% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
-        100% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+      @keyframes fullCelebrationAnimation {
+        /* == 1. 彈入螢幕中心 == */
+        0% { top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0); opacity: 0; }
+        15% { top: 50%; left: 50%; transform: translate(-50%, -50%) scale(1.1); opacity: 1; }
+        20% { top: 50%; left: 50%; transform: translate(-50%, -50%) scale(1); opacity: 1; }
+
+        /* == 2. 在螢幕順時針繞一圈 (無旋轉) == */
+        20% { top: 50%; left: 50%; transform: translate(-50%, -50%) scale(1); opacity: 1; }
+        25% { top: 20%; left: 50%; transform: translate(-50%, -50%) scale(1); opacity: 1; } /* 上 */
+        36% { top: 50%; left: 80%; transform: translate(-50%, -50%) scale(1); opacity: 1; } /* 右 */
+        47% { top: 80%; left: 50%; transform: translate(-50%, -50%) scale(1); opacity: 1; } /* 下 */
+        58% { top: 50%; left: 20%; transform: translate(-50%, -50%) scale(1); opacity: 1; } /* 左 */
+        65% { top: 20%; left: 50%; transform: translate(-50%, -50%) scale(1); opacity: 1; } /* 回到上方完成一圈 */
+        70% { top: 50%; left: 50%; transform: translate(-50%, -50%) scale(1); opacity: 1; } /* 回到中心 */
+
+        /* == 3. 從旁邊飛出去 == */
+        85% { top: 50%; left: 50%; transform: translate(-50%, -50%) scale(1); opacity: 1; }
+        100% { top: 50%; left: 150%; transform: translate(-50%, -50%) scale(0); opacity: 0; }
       }
 
       #login-section, #select-section, #quiz-section, #result-section, #inquiry-section { display: none; }
@@ -734,7 +750,7 @@
       function triggerCelebration() {
         const overlay = document.getElementById('celebration-overlay');
         overlay.style.display = 'block';
-        overlay.style.animation = 'popInOut 5s ease-in-out forwards';
+        overlay.style.animation = 'fullCelebrationAnimation 5s linear forwards';
         let duration = 3000;
         let end = Date.now() + duration;
         (function frame() {

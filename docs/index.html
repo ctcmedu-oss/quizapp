@@ -178,6 +178,24 @@
       .login-image-wrapper { width: 100%; text-align: center; margin-bottom: 20px; }
       .hero-image { width: 100%; height: auto; border-radius: 16px; object-fit: contain; display: block; margin: 0 auto; }
       .login-form-wrapper { padding: 20px 0 0 0; display: flex; flex-direction: column; justify-content: center; }
+		
+	/* 再刷一次按鈕樣式 */
+	.retry-btn {
+ 	 background-color: #27ae60; /* 綠色 */
+  	color: white;
+ 	 margin-bottom: 20px;
+	  font-size: 36px;
+ 	 padding: 20px;
+ 	 border-radius: 10px;
+ 	 border: none;
+ 	 cursor: pointer;
+ 	 font-weight: bold;
+ 	 width: 100%;
+	}
+
+	.retry-btn:hover {
+  	background-color: #219150; /* 懸停時變深 */
+	}
     </style>
   </head>
   <body>
@@ -890,6 +908,7 @@
           if (wrongQuestionsQueue.length > 0) {
             actionBtns += "<p style='color:#e74c3c; font-weight:bold; text-align:center; margin-bottom:25px; font-size:36px;'>您有答錯的題目，是否要進行錯題重刷以獲取積分？</p>";
             actionBtns += "<button onclick='startRetry()' style='background-color:#f39c12; margin-bottom:20px; font-size: 36px;'>進入錯題重刷</button>";
+			actionBtns += "<button onclick='selectSubject(\"" + currentSubject + "\")' class='retry-btn'>再刷一次</button>";
             actionBtns += "<button onclick='goHome()' style='background-color:#95a5a6; margin-bottom:20px; font-size: 36px;'>放棄重刷，回到檢定項目選擇</button>";
           } else {
             actionBtns += "<button onclick='selectSubject(\"" + currentSubject + "\")' style='background-color:#27ae60; margin-bottom:20px; font-size: 36px;'>再刷一次</button>";

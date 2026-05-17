@@ -175,10 +175,11 @@
         width: 100px; /* ⭐ 設定圖片容器寬度，讓文字對齊 */
       }
       .v-stair-icon img { 
-        width: 100px; /* ⭐ 設定圖片顯示寬度 */
-        height: auto; /* ⭐ 保持比例 */
-        filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3)); /* ⭐ 增強陰影立體感 */
-      }
+  		width: 100px;
+  		height: auto;
+  		/* ⭐ X和Y都設定偏移，形成右下角的斜角陰影 */
+  		filter: drop-shadow(6px 6px 5px rgba(0,0,0,0.4)); 
+	  }
       .v-stair-info { display: flex; flex-direction: column; text-align: left; line-height: 1.3;}
       .v-stair-name { font-size: 32px; font-weight: bold; margin-bottom: 5px;}
       .v-stair-score { font-size: 24px; font-weight: bold; opacity: 0.9; }

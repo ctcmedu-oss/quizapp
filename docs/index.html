@@ -7,6 +7,14 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <title>文教長期義工檢定刷題系統</title>
+	<meta name="apple-mobile-web-app-title" content="文教長期義工刷題系統">
+    <meta name="application-name" content="文教長期義工刷題系統">
+
+    <link rel="apple-touch-icon" href="https://drive.google.com/thumbnail?id=1wzicbdXtKQRu8KXMDkaomdnmNaWeSIbr&sz=w512">
+
+    <link rel="icon" type="image/png" sizes="192x192" href="https://drive.google.com/thumbnail?id=1wzicbdXtKQRu8KXMDkaomdnmNaWeSIbr&sz=w192">
+    <link rel="icon" type="image/png" sizes="512x512" href="https://drive.google.com/thumbnail?id=1wzicbdXtKQRu8KXMDkaomdnmNaWeSIbr&sz=w512">
+	  
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
       /* 🌟 全域最小字級設定為 28px */
@@ -403,8 +411,7 @@
           const response = await fetch(API_URL, {
             method: 'POST', redirect: 'follow',
             headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-            // 🌟 將 env 參數一併傳遞給後端
-            body: JSON.stringify({ action: action, env: ENV_PARAM, ...data }) 
+            body: JSON.stringify({ action: action, ...data })
           });
           const text = await response.text();
           let result = JSON.parse(text);

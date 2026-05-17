@@ -178,7 +178,7 @@
   		width: 100px;
   		height: auto;
   		/* ⭐ X和Y都設定偏移，形成右下角的斜角陰影 */
-  		filter: drop-shadow(6px 6px 5px rgba(0,0,0,0.4)); 
+  		filter: drop-shadow(6px 6px 5px rgba(0,0,0,0.3)); 
   	  }
       .v-stair-info { display: flex; flex-direction: column; text-align: left; line-height: 1.3;}
       .v-stair-name { font-size: 32px; font-weight: bold; margin-bottom: 5px;}
@@ -546,7 +546,7 @@
                  let subjectTotalScore = 0;
                  sortedWeeks.forEach(week => { subjectTotalScore += parseInt(history[subj][week].score) || 0; });
                  // ⭐ 更新積分查詢的里程碑計算與級距
-                 let milestoneIconStyle = "width: 100px; height: auto; vertical-align: middle; margin-right: 15px; filter: drop-shadow(0 3px 5px rgba(0,0,0,0.3));"; 
+                 let milestoneIconStyle = "width: 100px; height: auto; vertical-align: middle; margin-right: 15px; filter: drop-shadow(6px 6px 5px rgba(0,0,0,0.3));"; 
 
                  let milestoneText = subjectTotalScore >= 15001 
                    ? `<img src="https://drive.google.com/thumbnail?id=1T3KZ5YhBfdTgUxEAUvT9TXPvG6iZoEHl&sz=w300" style="${milestoneIconStyle}" alt="鑽石"> 鑽石級別 (15001分以上)`
@@ -716,6 +716,7 @@
           results.push({ questionId: q.id, userAnswer: ansValue, isCorrect: isCorrect });
 
           const displayLetters = ['A', 'B', 'C', 'D', 'E', 'F'];
+
           let correctAnsObjArr = [];
           dbAnswerStr.split(',').forEach(function(k) { 
               if(q.options && q.options[k]) {
@@ -765,7 +766,7 @@
           });
 
           // ⭐ 更新測驗結果的里程碑計算與級距
-          let milestoneIconStyle = "width: 100px; height: auto; vertical-align: middle; margin-right: 15px; filter: drop-shadow(0 3px 5px rgba(0,0,0,0.3));"; 
+          let milestoneIconStyle = "width: 100px; height: auto; vertical-align: middle; margin-right: 15px; filter: drop-shadow(6px 6px 5px rgba(0,0,0,0.3));"; 
 
           let milestoneText = scoreData.totalScore >= 15001 
             ? `<img src="https://drive.google.com/thumbnail?id=1T3KZ5YhBfdTgUxEAUvT9TXPvG6iZoEHl&sz=w300" style="${milestoneIconStyle}" alt="鑽石"> 鑽石級別 (15001分以上)`

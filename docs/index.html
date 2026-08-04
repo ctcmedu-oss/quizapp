@@ -407,19 +407,126 @@
         }
       }
 
-      async function callApi(action, data) {
-        try {
-          const response = await fetch(API_URL, {
-            method: 'POST', redirect: 'follow',
-            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-            body: JSON.stringify({ action: action, ...data })
-          });
-          const text = await response.text();
-          let result = JSON.parse(text);
-          if (result.status === 'success') return result.data;
-          else throw new Error(result.message || "未知的 API 錯誤");
-        } catch (error) { throw error; }
+      // 可以安全自動重試的「讀取型」操作
+const RETRYABLE_ACTIONS = new Set([
+  'verifyLogin',
+  'getWeeklyScoreHistory',
+  'getUserCurrentRound',
+  'getQuestions'
+]);
+
+function wait(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function callApi(action, data = {}) {
+  // 讀取資料最多嘗試 3 次；成績寫入不自動重試，避免重複記錄
+  const maxAttempts = RETRYABLE_ACTIONS.has(action) ? 3 : 1;
+  let lastError = null;
+
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    const controller = new AbortController();
+
+    // 單次等待上限 20 秒
+    const timeoutId = setTimeout(() => {
+      controller.abort();
+    }, 20000);
+
+    try {
+      const response = await fetch(API_URL, {
+        method: 'POST',
+        redirect: 'follow',
+        cache: 'no-store',
+        headers: {
+          'Content-Type': 'text/plain;charset=utf-8'
+        },
+        body: JSON.stringify({
+          action: action,
+          ...data
+        }),
+        signal: controller.signal
+      });
+
+      const text = await response.text();
+
+      // fetch 遇到 404、500 等狀態時不一定會自動拋出錯誤，
+      // 因此必須自行檢查 response.ok
+      if (!response.ok) {
+        console.error('API HTTP 錯誤：', response.status, text.slice(0, 300));
+
+        throw new Error(
+          `題庫伺服器回應異常（HTTP ${response.status}）`
+        );
       }
+
+      if (!text || !text.trim()) {
+        throw new Error('題庫伺服器沒有回傳資料');
+      }
+
+      let result;
+
+      try {
+        result = JSON.parse(text);
+      } catch (parseError) {
+        console.error(
+          'API 回傳內容不是 JSON：',
+          text.slice(0, 500)
+        );
+
+        // HTML 通常以 <、<!DOCTYPE 或 <html 開頭
+        if (/^\s*</.test(text)) {
+          throw new Error(
+            'Google 題庫服務暫時回傳錯誤頁面，系統將重新連線。'
+          );
+        }
+
+        throw new Error(
+          '題庫伺服器回傳格式異常，請稍後再試。'
+        );
+      }
+
+      if (!result || result.status !== 'success') {
+        throw new Error(
+          result?.message || '題庫伺服器發生未知錯誤'
+        );
+      }
+
+      return result.data;
+
+    } catch (error) {
+      console.error(
+        `API 呼叫失敗：${action}，第 ${attempt} 次`,
+        error
+      );
+
+      if (error.name === 'AbortError') {
+        lastError = new Error(
+          '連線等待時間過久，請稍後重新操作。'
+        );
+      } else if (error instanceof TypeError) {
+        // Failed to fetch 通常會進入這裡
+        lastError = new Error(
+          '目前無法連線到題庫伺服器，請確認網路後重新操作。'
+        );
+      } else {
+        lastError = error;
+      }
+
+      // 尚有重試次數時，等待後再次連線
+      if (attempt < maxAttempts) {
+        const delay = attempt === 1 ? 1000 : 2000;
+        await wait(delay);
+      }
+
+    } finally {
+      clearTimeout(timeoutId);
+    }
+  }
+
+  throw lastError || new Error(
+    '目前無法連線到題庫伺服器，請稍後再試。'
+  );
+}
 
       function shuffleArray(array) {
         for (let i = array.length - 1; i > 0; i--) {

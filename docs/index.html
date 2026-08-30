@@ -255,6 +255,16 @@
       <img src="https://drive.google.com/thumbnail?id=1GzDovlS27xX38_ZjeUTgOlJ5_EutgxrT&sz=w1000" alt="全對恭喜">
     </div>
 
+    <!-- 🌟 時間未開放 / 換檔公告圖片區塊 -->
+<div id="maintenance-overlay" style="display: none; text-align: center; padding: 20px; min-height: 100vh; background-color: #f4f6f9; box-sizing: border-box;">
+  <div style="max-width: 900px; margin: 30px auto; background: white; padding: 20px; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.1);">
+    
+    <!-- 雲端硬碟直連公告圖 -->
+    <img src="https://drive.google.com/thumbnail?id=1UHC596mY2PKY-NVaWw7W7d4b38Utjws3&sz=w1200" alt="系統換檔維護公告" style="width: 100%; max-width: 850px; height: auto; border-radius: 10px; display: block; margin: 0 auto;">
+    
+  </div>
+</div>
+
     <div id="login-section" class="container login-container-override">
       <div class="login-layout">
         <div class="login-image-wrapper">
@@ -542,17 +552,34 @@ async function callApi(action, data = {}) {
       }
 
       window.onload = function() {
+        var now = new Date();
+        
+        // 🌟 設定時間節點
+        // 截止時間：2026/08/31 00:00:00 (即 8/30 23:59:59 結束)
+        var closeDate = new Date('2026/08/31 00:00:00');
+        // 模擬考開放時間：2026/09/01 00:00:00 (若為早上可改為 '2026/09/01 08:00:00')
+        var mockStartDate = new Date('2026/09/01 00:00:00');
+
+        // 🌟 判斷是否處於「8/31 換檔過渡期」
+        if (now >= closeDate && now < mockStartDate) {
+          // 隱藏所有操作區塊，只顯示公告圖片
+          document.querySelectorAll('.container').forEach(c => c.style.display = 'none');
+          document.getElementById('maintenance-overlay').style.display = 'block';
+          return; // 終止後續載入，防止登入
+        }
+
+        // --- 以下為正常登入/首頁流程 ---
         try {
-          let savedUser = localStorage.getItem('volunteerData');
+          var savedUser = localStorage.getItem('volunteerData');
           if (savedUser) {
             currentVolunteer = JSON.parse(savedUser);
-            let savedState = sessionStorage.getItem('appState');
-            if (savedState) restoreAppState(JSON.parse(savedState));
-            else renderSelectSection();
+            document.getElementById('login-section').style.display = 'none';
+            document.getElementById('select-section').style.display = 'block';
+            document.getElementById('welcome-msg').innerText = currentVolunteer.volunteerName + " 您好！";
           } else {
             document.getElementById('login-section').style.display = 'block';
           }
-        } catch (error) {
+        } catch (e) {
           document.getElementById('login-section').style.display = 'block';
         }
       };

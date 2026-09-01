@@ -52,17 +52,28 @@
         box-shadow: 0 0 15px rgba(231, 76, 60, 0.25);
       }
 
-      /* 🌟 頂部資訊列：題號 + 題型標籤 */
-      .q-header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
-      .q-number { font-size: 32px; font-weight: bold; color: #34495e; }
+      /* 🌟 題號與題型同一排橫向對齊 */
+      .q-header { 
+        display: flex; 
+        flex-direction: row; 
+        align-items: center; 
+        gap: 12px; 
+        margin-bottom: 15px; 
+      }
+      .q-number { 
+        font-size: 32px; 
+        font-weight: bold; 
+        color: #2c3e50; 
+      }
       
-      /* 🌟 題目文字獨立換至下一行並佔滿整行 */
+      /* 🌟 題目文字整行獨立展開 */
       .q-title-text { 
+        width: 100%; 
         font-size: 30px; 
         font-weight: bold; 
         color: #2c3e50; 
         line-height: 1.6; 
-        margin-bottom: 15px; 
+        margin-bottom: 20px; 
         word-break: break-word; 
       }
       

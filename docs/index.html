@@ -41,8 +41,6 @@
         box-shadow: 0 6px 15px rgba(0,0,0,0.15);
       }
 
-      .q-block { margin-bottom: 40px; border-bottom: 2px solid #eee; padding: 15px; border-radius: 12px; transition: all 0.3s; }
-      
       .q-block { margin-bottom: 35px; border-bottom: 2px solid #eee; padding: 15px; border-radius: 12px; transition: all 0.3s; }
       
       /* 🌟 防呆：未作答題目的醒目紅框樣式 */
@@ -58,7 +56,7 @@
         flex-direction: row; 
         align-items: center; 
         gap: 12px; 
-        margin-bottom: 15px; 
+        margin-bottom: 12px; 
       }
       .q-number { 
         font-size: 32px; 
@@ -73,7 +71,7 @@
         font-weight: bold; 
         color: #2c3e50; 
         line-height: 1.6; 
-        margin-bottom: 20px; 
+        margin-bottom: 15px; 
         word-break: break-word; 
       }
       
@@ -440,10 +438,17 @@
           var inputType = isMulti ? 'checkbox' : 'radio';
 
           html += "<div class='q-block' id='q-wrap-" + q.id + "'>";
-          html += "<div class='q-header'><div class='q-number'>" + (idx + 1) + ".</div>";
-          html += "<div class='q-content'><div class='q-badge-wrapper'><span class='q-type-badge " + badgeClass + "'>" + q.qFormat + "</span></div>";
-          html += "<div class='q-title-text'>" + q.text + "</div></div></div>";
+          
+          // 🌟 第一排：題號與題型並排 (例如：1. [是非題])
+          html += "<div class='q-header'>";
+          html += "<span class='q-number'>" + (idx + 1) + ".</span>";
+          html += "<span class='q-type-badge " + badgeClass + "'>" + q.qFormat + "</span>";
+          html += "</div>";
 
+          // 🌟 第二排：題目文字獨立換行展開
+          html += "<div class='q-title-text'>" + q.text + "</div>";
+
+          // 選項區塊
           ['A', 'B', 'C', 'D', 'E'].forEach(function(k) {
             if (q.options && q.options[k]) {
               html += "<label>";

@@ -43,6 +43,8 @@
 
       .q-block { margin-bottom: 40px; border-bottom: 2px solid #eee; padding: 15px; border-radius: 12px; transition: all 0.3s; }
       
+      .q-block { margin-bottom: 35px; border-bottom: 2px solid #eee; padding: 15px; border-radius: 12px; transition: all 0.3s; }
+      
       /* 🌟 防呆：未作答題目的醒目紅框樣式 */
       .q-block.unanswered-warning {
         border: 3px solid #e74c3c !important;
@@ -50,13 +52,21 @@
         box-shadow: 0 0 15px rgba(231, 76, 60, 0.25);
       }
 
-      .q-header { display: flex; align-items: flex-start; margin-bottom: 20px; }
-      .q-number { font-size: 32px; font-weight: bold; color: #34495e; margin-right: 12px; flex-shrink: 0; }
-      .q-content { display: flex; flex-direction: row; align-items: flex-start; flex-grow: 1; }
-      .q-badge-wrapper { flex-shrink: 0; margin-right: 15px; }
-      .q-title-text { font-size: 32px; font-weight: bold; color: #34495e; line-height: 1.5; flex-grow: 1; word-break: break-word; }
+      /* 🌟 頂部資訊列：題號 + 題型標籤 */
+      .q-header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+      .q-number { font-size: 32px; font-weight: bold; color: #34495e; }
       
-      .q-type-badge { display: inline-block; padding: 6px 12px; border-radius: 8px; font-size: 26px; font-weight: bold; color: white; white-space: nowrap; }
+      /* 🌟 題目文字獨立換至下一行並佔滿整行 */
+      .q-title-text { 
+        font-size: 30px; 
+        font-weight: bold; 
+        color: #2c3e50; 
+        line-height: 1.6; 
+        margin-bottom: 15px; 
+        word-break: break-word; 
+      }
+      
+      .q-type-badge { display: inline-block; padding: 4px 14px; border-radius: 8px; font-size: 24px; font-weight: bold; color: white; white-space: nowrap; }
       .badge-single { background-color: #3498db; } 
       .badge-boolean { background-color: #27ae60; } 
       .badge-multi { background-color: #e67e22; }

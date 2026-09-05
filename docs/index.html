@@ -28,13 +28,11 @@
       @media (max-width: 768px) { .menu-grid { grid-template-columns: 1fr; } }
       .btn-portal { padding: 30px 20px; border-radius: 16px; font-weight: bold; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; text-decoration: none; border: none; transition: transform 0.2s, filter 0.2s, box-shadow 0.2s; }
       
-      /* 🌟 4 個按鈕固定原始顏色 */
       .btn-edit-mock { background-color: #f39c12 !important; }
       .btn-edit-all { background-color: #e67e22 !important; }
       .btn-photo-mock { background-color: #3498db !important; }
       .btn-photo-all { background-color: #2980b9 !important; }
 
-      /* 🌟 滑鼠移過去時：原色加亮 15% + 輕微放大微浮 */
       .btn-portal:hover {
         filter: brightness(1.15);
         transform: translateY(-3px);
@@ -43,14 +41,12 @@
 
       .q-block { margin-bottom: 35px; border-bottom: 2px solid #eee; padding: 15px; border-radius: 12px; transition: all 0.3s; }
       
-      /* 🌟 防呆：未作答題目的醒目紅框樣式 */
       .q-block.unanswered-warning {
         border: 3px solid #e74c3c !important;
         background-color: #fdf2f2 !important;
         box-shadow: 0 0 15px rgba(231, 76, 60, 0.25);
       }
 
-      /* 🌟 題號與題型同一排橫向對齊 */
       .q-header { 
         display: flex; 
         flex-direction: row; 
@@ -64,7 +60,6 @@
         color: #2c3e50; 
       }
       
-      /* 🌟 題目文字整行獨立展開 */
       .q-title-text { 
         width: 100%; 
         font-size: 30px; 
@@ -80,7 +75,6 @@
       .badge-boolean { background-color: #27ae60; } 
       .badge-multi { background-color: #e67e22; }
 
-      /* 自訂圓圈選項樣式 */
       .q-block label { display: flex; align-items: flex-start; padding: 15px 20px; border-radius: 12px; cursor: pointer; line-height: 1.5; font-size: 32px; margin-bottom: 8px; transition: background 0.2s; }
       .q-block label:hover { background-color: #f8f9fa; }
       
@@ -92,18 +86,15 @@
       .sticky-header { position: sticky; top: 0; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(8px); z-index: 999; padding: 20px; border-bottom: 2px solid #e6ebf0; display: flex; justify-content: space-between; align-items: center; border-radius: 12px 12px 0 0; }
       .back-btn-text { width: auto !important; margin: 0 !important; font-size: 22px !important; padding: 10px 20px !important; background-color: #95a5a6 !important; border-radius: 30px !important; }
 
-      /* 解析區塊樣式 */
       .explanation-details { background-color: #fdfefe; border: 2px solid #e6ebf0; border-left: 10px solid #f39c12; border-radius: 12px; margin-top: 15px; padding: 20px 25px; white-space: pre-wrap; line-height: 1.6; font-size: 30px; color: #34495e; }
       .explanation-details.theme-photo { border-left-color: #3498db; }
 
-      /* 題庫與錯題排版 */
       .pr-block { border: 2px solid #bdc3c7; margin-bottom: 35px; border-radius: 8px; background: white; }
       .pr-row { display: flex; border-bottom: 1px solid #ecf0f1; padding: 20px; }
       .pr-row:last-child { border-bottom: none; }
       .pr-label { width: 140px; flex-shrink: 0; font-size: 32px; font-weight: bold; color: #2c3e50; }
       .pr-content { flex-grow: 1; }
 
-      /* 成績卡片樣式 */
       .result-card-edit { background: #fffaf4; border: 3px solid #e67e22; border-radius: 16px; padding: 30px 20px; text-align: center; margin-bottom: 30px; }
       .result-card-photo { background: #f4faff; border: 3px solid #3498db; border-radius: 16px; padding: 30px 20px; text-align: center; margin-bottom: 30px; }
       
@@ -117,7 +108,6 @@
       .spinner { border: 6px solid #f3f3f3; border-top: 6px solid #3498db; border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; margin: 0 auto 20px auto; }
       @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-      /* 慶祝動畫覆蓋層 */
       #celebration-overlay { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0); z-index: 10000; pointer-events: none; display: none; overflow: visible; }
       #celebration-overlay img { max-width: 120vw; max-height: 90vh; }
       @keyframes fullCelebrationAnimation {
@@ -134,7 +124,6 @@
         100% { top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0); opacity: 0; }
       }
 		
-      /* 考卷頂部配分說明欄 */
       .exam-score-info {
         background-color: #f8fafc;
         border: 2px solid #e2e8f0;
@@ -266,7 +255,6 @@
       let currentQuestions = [];
       let currentSubject = "";
 
-      // 🌟 計算目前顯示的週次
       function getDisplayWeek() {
         var startDate = new Date('2026/08/31 00:00:00'); 
         var today = new Date();
@@ -280,7 +268,6 @@
         return week;
       }
 
-      // 🌟 渲染週次橫幅文字
       function updateWeekBanner() {
         var weekNum = getDisplayWeek();
         var banner = document.getElementById('current-week-banner');
@@ -292,7 +279,6 @@
         var now = new Date();
         var mockStartDate = new Date('2026/09/01 00:00:00');
 
-        // 正式站時間閘門
         if (now < mockStartDate) {
           document.querySelectorAll('.container').forEach(function(c) { c.style.display = 'none'; });
           document.getElementById('maintenance-overlay').style.display = 'block';
@@ -306,7 +292,7 @@
             currentVolunteer = JSON.parse(savedUser);
             document.getElementById('login-section').style.display = 'none';
             document.getElementById('select-section').style.display = 'block';
-            document.getElementById('welcome-msg').innerText = currentVolunteer.volunteerName + " 您好！";
+            document.getElementById('welcome-msg').innerText = (currentVolunteer.volunteerName || currentVolunteer.name || "") + " 您好！";
             updateWeekBanner();
           } else {
             document.getElementById('login-section').style.display = 'block';
@@ -327,6 +313,13 @@
           sidebar.classList.add('open');
           overlay.style.display = 'block';
         }
+      }
+
+      function closeSidebar() {
+        var sidebar = document.getElementById('sidebar');
+        var overlay = document.getElementById('sidebar-overlay');
+        if (sidebar) sidebar.classList.remove('open');
+        if (overlay) overlay.style.display = 'none';
       }
 
       async function callApi(action, data) {
@@ -370,11 +363,13 @@
           var user = await callApi('verifyLogin', { name: name, id: id });
           if (user && user.success) {
             currentVolunteer = user;
-            localStorage.setItem('volunteerData', JSON.stringify(user));
+            if (!currentVolunteer.volunteerId && user.id) currentVolunteer.volunteerId = user.id;
+            if (!currentVolunteer.volunteerName && user.name) currentVolunteer.volunteerName = user.name;
+            localStorage.setItem('volunteerData', JSON.stringify(currentVolunteer));
             msg.innerText = "";
             document.getElementById('login-section').style.display = 'none';
             document.getElementById('select-section').style.display = 'block';
-            document.getElementById('welcome-msg').innerText = user.volunteerName + " 您好！";
+            document.getElementById('welcome-msg').innerText = (currentVolunteer.volunteerName || "") + " 您好！";
             updateWeekBanner();
           } else {
             msg.innerText = (user && user.message) ? user.message : "姓名或編號錯誤";
@@ -385,12 +380,14 @@
       }
 
       function goHome() {
+        closeSidebar();
         document.querySelectorAll('.container').forEach(c => c.style.display = 'none');
         document.getElementById('select-section').style.display = 'block';
         updateWeekBanner();
       }
 
       function logout() {
+        closeSidebar();
         localStorage.removeItem('volunteerData');
         currentVolunteer = {};
         document.getElementById('vName').value = "";
@@ -420,8 +417,9 @@
         document.getElementById('submit-btn').style.display = 'none';
 
         try {
+          var vId = currentVolunteer.volunteerId || currentVolunteer.id || "";
           var rawQuestions = await callApi('getQuestions', { 
-            vId: currentVolunteer.volunteerId, 
+            vId: vId, 
             subject: subject, 
             mode: 'quiz',
             _t: new Date().getTime()
@@ -588,8 +586,9 @@
         document.getElementById('result-container').innerHTML = "<div class='loading-container'><div class='spinner'></div>計算分數與紀錄中...</div>";
 
         try {
+          var vId = currentVolunteer.volunteerId || currentVolunteer.id || "";
           var res = await callApi('submitAndLogAnswers', {
-            vId: currentVolunteer.volunteerId,
+            vId: vId,
             subject: currentSubject,
             results: results
           });
@@ -675,7 +674,8 @@
         document.getElementById('all-container').innerHTML = "<div class='loading-container'><div class='spinner'></div>讀取完整題庫中...</div>";
 
         try {
-          var questions = await callApi('getQuestions', { vId: currentVolunteer.volunteerId, subject: subject, mode: 'all' });
+          var vId = currentVolunteer.volunteerId || currentVolunteer.id || "";
+          var questions = await callApi('getQuestions', { vId: vId, subject: subject, mode: 'all' });
           
           var boolList = [], singleList = [], multiList = [];
           questions.forEach(function(q) {
@@ -735,17 +735,16 @@
         }
       }
 
-      // 🌟 補回歷史成績查詢函式
+      // 🌟 正式版完整的歷史成績查詢函式
       async function openHistoryView() {
-        var sidebar = document.getElementById('sidebar');
-        if (sidebar && sidebar.classList.contains('open')) toggleSidebar();
-
+        closeSidebar(); // 點擊後立即關閉抽屜與遮罩
         document.querySelectorAll('.container').forEach(c => c.style.display = 'none');
         document.getElementById('history-section').style.display = 'block';
         document.getElementById('history-container').innerHTML = "<div class='loading-container'><div class='spinner'></div>載入歷次模擬考成績中...</div>";
 
         try {
-          var history = await callApi('getAllHistoryScores', { vId: currentVolunteer.volunteerId });
+          var vId = currentVolunteer.volunteerId || currentVolunteer.id || "";
+          var history = await callApi('getAllHistoryScores', { vId: vId });
           if (!history || history.length === 0) {
             document.getElementById('history-container').innerHTML = "<p style='text-align:center; font-size:30px; color:#7f8c8d; padding:40px 0;'>尚無模擬考測驗紀錄</p>";
             return;
